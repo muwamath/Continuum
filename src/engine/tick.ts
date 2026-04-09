@@ -19,6 +19,16 @@ export function processTick(state: GameState): GameState {
     }
   }
 
+  // Check if the action can proceed before ticking (e.g., enough items for costs)
+  if (!canActionProceed(actionDef, state)) {
+    const newQueue = removeFromQueue(state.queue, current.instanceId)
+    return {
+      ...state,
+      queue: newQueue,
+      isPaused: newQueue.length === 0,
+    }
+  }
+
   const skillId = actionDef.requiredSkill
   const skillDef = skillDefinitions[skillId]
   const skill = state.skills[skillId]
