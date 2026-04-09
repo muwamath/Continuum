@@ -1,5 +1,6 @@
 import { useGameState } from './hooks/useGameState'
 import { useGameLoop } from './hooks/useGameLoop'
+import { useSaveLoad } from './hooks/useSaveLoad'
 import { GameLayout } from './components/layout/GameLayout'
 import { SkillBar } from './components/skills/SkillBar'
 import { InventoryPanel } from './components/inventory/InventoryPanel'
@@ -10,6 +11,7 @@ import { DebugOverlay } from './components/debug/DebugOverlay'
 function App() {
   const [state, dispatch] = useGameState()
   useGameLoop(state.isPaused, dispatch)
+  useSaveLoad(state, dispatch)
 
   return (
     <>
