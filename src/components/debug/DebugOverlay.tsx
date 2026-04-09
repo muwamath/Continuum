@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { Dispatch } from 'react'
 import type { GameAction } from '../../hooks/useGameState'
 import type { GameState, SkillId } from '../../engine/types'
@@ -17,31 +17,37 @@ function isLocalhost(): boolean {
 export function DebugOverlay({ state, dispatch }: DebugOverlayProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [editState, setEditState] = useState<GameState | null>(null)
+  const editStateRef = useRef(editState)
+  editStateRef.current = editState
 
-  const handleOpen = useCallback(() => {
+  const handleOpen = () => {
     setEditState(structuredClone(state))
     dispatch({ type: 'SET_DEBUG_STATE', state: { isPaused: true } })
     setIsOpen(true)
-  }, [state, dispatch])
+  }
 
-  const handleClose = useCallback(() => {
-    if (editState) {
-      dispatch({ type: 'SET_DEBUG_STATE', state: editState })
+  const handleClose = () => {
+    if (editStateRef.current) {
+      dispatch({ type: 'SET_DEBUG_STATE', state: editStateRef.current })
     }
     setIsOpen(false)
     setEditState(null)
-  }, [editState, dispatch])
+  }
 
   useEffect(() => {
     if (!isOpen) return
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        handleClose()
+        if (editStateRef.current) {
+          dispatch({ type: 'SET_DEBUG_STATE', state: editStateRef.current })
+        }
+        setIsOpen(false)
+        setEditState(null)
       }
     }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, handleClose])
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isOpen, dispatch])
 
   if (!isLocalhost()) return null
 
