@@ -113,6 +113,18 @@ export function DebugOverlay({ state, dispatch }: DebugOverlayProps) {
         <div className="debug-overlay__header">
           <h2>Debug Overlay</h2>
           <div className="debug-overlay__header-actions">
+            <button
+              onClick={() => {
+                if (window.confirm('Completely restart the game? This clears all progress and saved data.')) {
+                  dispatch({ type: 'RESTART' })
+                  setIsOpen(false)
+                  setEditState(null)
+                }
+              }}
+              className="debug-btn debug-btn--danger"
+            >
+              Restart Game
+            </button>
             <button onClick={resetAll} className="debug-btn debug-btn--danger">
               Reset All
             </button>

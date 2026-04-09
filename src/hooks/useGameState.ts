@@ -10,6 +10,7 @@ export type GameAction =
   | { type: 'ENQUEUE_BACK'; action: QueuedAction }
   | { type: 'REMOVE_FROM_QUEUE'; instanceId: string }
   | { type: 'SET_DEBUG_STATE'; state: Partial<GameState> }
+  | { type: 'RESTART' }
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -41,6 +42,10 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'SET_DEBUG_STATE':
       return { ...state, ...action.state }
+
+    case 'RESTART':
+      localStorage.removeItem('continuum-save')
+      return createInitialState()
 
     default:
       return state

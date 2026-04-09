@@ -123,6 +123,27 @@ describe('processTick', () => {
     expect(state.inventory.berry.maxCapacity).toBe(15)
   })
 
+  it('skips wooden cart when not enough wood at completion time', () => {
+    let state = {
+      ...createInitialState(),
+      isPaused: false,
+      queue: [createQueuedAction('wooden-cart')],
+    }
+    state.inventory.wood.count = 5 // not enough (needs 10)
+    for (let i = 0; i < 500; i++) {
+      state = processTick(state)
+      if (state.queue.length === 0) break
+    }
+    // Should NOT have completed — skipped due to insufficient wood
+    expect(state.completedOneTimeActions).not.toContain('wooden-cart')
+    expect(state.queue).toHaveLength(0)
+    expect(state.isPaused).toBe(true)
+    // Wood should not have been spent
+    expect(state.inventory.wood.count).toBe(5)
+    // Capacities should not have increased
+    expect(state.inventory.berry.maxCapacity).toBe(10)
+  })
+
   it('auto-pauses when queue drains', () => {
     let state = {
       ...createInitialState(),

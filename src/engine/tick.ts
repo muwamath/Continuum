@@ -58,28 +58,37 @@ export function processTick(state: GameState): GameState {
   // Update progress
   const newProgress = current.progress + tickExp
   if (newProgress >= actionDef.expCost) {
-    // Action completes
-    newState = completeAction(actionDef, newState)
-
-    if (actionDef.isOneTime) {
-      // Remove one-time action from queue
+    // Check if the action can actually complete (enough items to pay costs, etc.)
+    if (!canActionProceed(actionDef, newState)) {
+      // Can't afford costs or inventory full — skip this action
       newState = {
         ...newState,
         queue: removeFromQueue(newState.queue, current.instanceId),
       }
     } else {
-      // Reset progress for repeating actions
-      const resetAction = { ...current, progress: 0 }
-      newState = {
-        ...newState,
-        queue: [resetAction, ...newState.queue.slice(1)],
-      }
+      // Action completes
+      newState = completeAction(actionDef, newState)
 
-      // Check if the action can proceed again (inventory full, etc.)
-      if (!canActionProceed(actionDef, newState)) {
+      if (actionDef.isOneTime) {
+        // Remove one-time action from queue
         newState = {
           ...newState,
           queue: removeFromQueue(newState.queue, current.instanceId),
+        }
+      } else {
+        // Reset progress for repeating actions
+        const resetAction = { ...current, progress: 0 }
+        newState = {
+          ...newState,
+          queue: [resetAction, ...newState.queue.slice(1)],
+        }
+
+        // Check if the action can proceed again (inventory full, etc.)
+        if (!canActionProceed(actionDef, newState)) {
+          newState = {
+            ...newState,
+            queue: removeFromQueue(newState.queue, current.instanceId),
+          }
         }
       }
     }
