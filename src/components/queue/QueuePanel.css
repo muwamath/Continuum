@@ -1,0 +1,29 @@
+.queue-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.queue-panel__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0.5rem 0;
+}
+
+.queue-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.queue-panel__empty {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 2rem 0;
+}

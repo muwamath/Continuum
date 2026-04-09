@@ -1,0 +1,14 @@
+.inventory-panel__title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.inventory-panel__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

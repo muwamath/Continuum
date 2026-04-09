@@ -1,0 +1,29 @@
+.inventory-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-panel);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.inventory-item--full {
+  border-color: var(--color-warning);
+}
+
+.inventory-item__name {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.inventory-item__count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.inventory-item--full .inventory-item__count {
+  color: var(--color-warning);
+}

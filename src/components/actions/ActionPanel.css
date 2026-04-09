@@ -1,0 +1,14 @@
+.action-panel__title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.action-panel__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

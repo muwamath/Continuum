@@ -1,0 +1,38 @@
+.skill-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  margin-top: 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem;
+  min-width: 280px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.skill-tooltip table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-family: var(--mono);
+}
+
+.skill-tooltip th,
+.skill-tooltip td {
+  padding: 0.2rem 0.4rem;
+  text-align: left;
+}
+
+.skill-tooltip th {
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+
+.skill-tooltip tfoot td {
+  border-top: 1px solid var(--border);
+  font-weight: 600;
+  color: var(--text);
+}

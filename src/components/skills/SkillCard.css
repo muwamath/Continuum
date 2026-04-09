@@ -1,0 +1,47 @@
+.skill-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-surface);
+  border-radius: 6px;
+  min-width: 140px;
+  cursor: default;
+  outline: none;
+}
+
+.skill-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.skill-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.skill-card__info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.skill-card__name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.skill-card__mult {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+
+.skill-card__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}

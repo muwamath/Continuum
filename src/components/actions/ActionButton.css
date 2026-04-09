@@ -1,0 +1,49 @@
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.action-button__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 100px;
+}
+
+.action-button__name {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.action-button__costs {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.action-button__enqueue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-panel);
+  color: var(--text);
+  padding: 0;
+  transition: background-color 0.15s;
+}
+
+.action-button__enqueue:hover {
+  background: var(--bg-surface);
+  border-color: var(--accent);
+}
+
+.action-button__enqueue:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
