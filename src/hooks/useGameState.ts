@@ -3,6 +3,7 @@ import type { GameState, QueuedAction } from '../engine/types'
 import { createInitialState } from '../engine/gameState'
 import { processTick } from '../engine/tick'
 import { enqueueFront, enqueueBack, removeFromQueue } from '../engine/queue'
+import { performRebirth } from '../engine/health'
 
 export type GameAction =
   | { type: 'TICK' }
@@ -11,6 +12,7 @@ export type GameAction =
   | { type: 'REMOVE_FROM_QUEUE'; instanceId: string }
   | { type: 'SET_DEBUG_STATE'; state: Partial<GameState> }
   | { type: 'RESTART' }
+  | { type: 'CONTINUE_REBIRTH' }
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -42,6 +44,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'SET_DEBUG_STATE':
       return { ...state, ...action.state }
+
+    case 'CONTINUE_REBIRTH':
+      return performRebirth(state)
 
     case 'RESTART':
       localStorage.removeItem('continuum-save')

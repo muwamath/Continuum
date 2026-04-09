@@ -1,5 +1,6 @@
 import type { ActionDefinition, SkillState } from '../../engine/types'
 import type { SkillDefinition } from '../../data/skillDefinitions'
+import { itemDefinitions } from '../../data/itemDefinitions'
 import { getTotalMultiplierWithDefs } from '../../engine/skills'
 import './ActionTooltip.css'
 
@@ -47,6 +48,12 @@ export function ActionTooltip({ action, skillDef, skillState }: ActionTooltipPro
         <span className="action-tooltip__label">ETA</span>
         <span>{formatEta(secondsNeeded)}</span>
       </div>
+      {action.producedItem && itemDefinitions[action.producedItem]?.category === 'food' && (
+        <div className="action-tooltip__row">
+          <span className="action-tooltip__label">Heals</span>
+          <span>{itemDefinitions[action.producedItem].healAmount} HP</span>
+        </div>
+      )}
     </div>
   )
 }

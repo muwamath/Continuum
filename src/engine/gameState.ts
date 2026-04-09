@@ -27,5 +27,12 @@ export function createInitialState(): GameState {
     completedOneTimeActions: [],
     isPaused: true,
     tickCount: 0,
+    health: { current: 100, max: 100 },
+    rebirth: { count: 0, healthBonus: 0 },
+    foodCooldowns: {},
+    runTickCount: 0,
+    healthDecayMultiplier: 1.0,
+    isDead: false,
+    pendingRebirthBonus: 0,
   }
 }

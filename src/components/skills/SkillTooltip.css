@@ -31,11 +31,6 @@
   font-weight: 500;
 }
 
-.skill-tooltip__calc {
-  color: var(--text-dim);
-  font-size: 0.7rem;
-}
-
 .skill-tooltip tfoot td {
   border-top: 1px solid var(--border);
   font-weight: 600;

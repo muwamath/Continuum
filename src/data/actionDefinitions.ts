@@ -30,4 +30,14 @@ export const actionDefinitions: ActionDefinition[] = [
     isOneTime: true,
     capacityBonusOnComplete: 5,
   },
+  {
+    id: 'wooden-hut',
+    name: 'Wooden Hut',
+    requiredSkill: 'construction',
+    expCost: 30,
+    itemCosts: [{ itemId: 'wood', amount: 20 }],
+    isOneTime: true,
+    capacityBonusOnComplete: 0,
+    healthDecayMultiplier: 0.5,
+  },
 ]

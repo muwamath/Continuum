@@ -10,12 +10,20 @@ import {
   completeAction,
 } from './actions'
 import { removeFromQueue } from './queue'
+import {
+  applyTickDamage,
+  checkIsDead,
+  calculateRebirthBonus,
+  processAutoEat,
+  tickCooldowns,
+} from './health'
 
 export function processTick(state: GameState): GameState {
-  if (state.isPaused || state.queue.length === 0) {
+  if (state.isPaused || state.isDead || state.queue.length === 0) {
     return state
   }
 
+  // Validate front action BEFORE applying damage or progressing time
   const current = state.queue[0]
   const actionDef = actionDefinitions.find((a) => a.id === current.actionId)
   if (!actionDef) {
@@ -44,6 +52,33 @@ export function processTick(state: GameState): GameState {
       isPaused: newQueue.length === 0,
     }
   }
+
+  // Health: apply damage, auto-eat, death check
+  const newHealthCurrent = applyTickDamage(state.health.current, state.runTickCount, state.healthDecayMultiplier)
+  const newCooldowns = tickCooldowns(state.foodCooldowns)
+
+  let healthState: GameState = {
+    ...state,
+    health: { ...state.health, current: newHealthCurrent },
+    foodCooldowns: newCooldowns,
+    runTickCount: state.runTickCount + 1,
+  }
+
+  // Auto-eat before death check
+  healthState = processAutoEat(healthState)
+
+  // Death check
+  if (checkIsDead(healthState.health.current)) {
+    const bonus = calculateRebirthBonus(healthState.runTickCount)
+    return {
+      ...healthState,
+      isDead: true,
+      pendingRebirthBonus: bonus,
+      isPaused: true,
+    }
+  }
+
+  state = healthState
 
   // Consume cost units as needed before progressing
   let inventory = state.inventory

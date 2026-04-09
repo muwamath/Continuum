@@ -36,7 +36,6 @@ export function SkillTooltip({ definition, state, totalMult }: SkillTooltipProps
             <th>Lv</th>
             <th>Experience</th>
             <th>Mult</th>
-            <th>Calculation</th>
           </tr>
         </thead>
         <tbody>
@@ -45,25 +44,18 @@ export function SkillTooltip({ definition, state, totalMult }: SkillTooltipProps
             <td>{state.coreMastery.level}</td>
             <td>{state.coreMastery.currentExp.toFixed(1)} / {coreExpNeeded.toFixed(1)}</td>
             <td>x{coreMult.toFixed(2)}</td>
-            <td className="skill-tooltip__calc">
-              1.0 + {state.coreMastery.level} &times; {definition.coreMastery.multiplierPerLevel}
-            </td>
           </tr>
           <tr>
             <td>Run</td>
             <td>{state.runMastery.level}</td>
             <td>{state.runMastery.currentExp.toFixed(1)} / {runExpNeeded.toFixed(1)}</td>
             <td>x{runMult.toFixed(2)}</td>
-            <td className="skill-tooltip__calc">
-              1.0 + {state.runMastery.level} &times; {definition.runMastery.multiplierPerLevel}
-            </td>
           </tr>
           <tr>
             <td>Tool</td>
             <td>-</td>
             <td>-</td>
             <td>x{state.toolMultiplier.toFixed(2)}</td>
-            <td className="skill-tooltip__calc">base</td>
           </tr>
         </tbody>
         <tfoot>
@@ -72,9 +64,6 @@ export function SkillTooltip({ definition, state, totalMult }: SkillTooltipProps
             <td></td>
             <td></td>
             <td>x{totalMult.toFixed(2)}</td>
-            <td className="skill-tooltip__calc">
-              {coreMult.toFixed(2)} &times; {runMult.toFixed(2)} &times; {state.toolMultiplier.toFixed(2)}
-            </td>
           </tr>
         </tfoot>
       </table>

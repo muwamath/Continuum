@@ -8,6 +8,8 @@ import { SkillBar } from './components/skills/SkillBar'
 import { InventoryPanel } from './components/inventory/InventoryPanel'
 import { ActionPanel } from './components/actions/ActionPanel'
 import { QueuePanel } from './components/queue/QueuePanel'
+import { HealthBar } from './components/health/HealthBar'
+import { DeathScreen } from './components/death/DeathScreen'
 import { DebugOverlay } from './components/debug/DebugOverlay'
 
 function App() {
@@ -19,10 +21,18 @@ function App() {
     <>
       <GameLayout
         skills={<SkillBar skills={state.skills} />}
+        health={<HealthBar health={state.health} runTickCount={state.runTickCount} healthDecayMultiplier={state.healthDecayMultiplier} />}
         inventory={<InventoryPanel inventory={state.inventory} />}
         actions={<ActionPanel state={state} dispatch={dispatch} />}
         queue={<QueuePanel state={state} dispatch={dispatch} />}
       />
+      {state.isDead && (
+        <DeathScreen
+          pendingRebirthBonus={state.pendingRebirthBonus}
+          rebirth={state.rebirth}
+          onContinue={() => dispatch({ type: 'CONTINUE_REBIRTH' })}
+        />
+      )}
       <DebugOverlay state={state} dispatch={dispatch} />
       <span className="version-label">v{APP_VERSION}</span>
     </>

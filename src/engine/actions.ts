@@ -126,9 +126,15 @@ export function completeAction(
     completedOneTimeActions = [...completedOneTimeActions, action.id]
   }
 
+  let healthDecayMultiplier = state.healthDecayMultiplier
+  if (action.healthDecayMultiplier !== undefined) {
+    healthDecayMultiplier *= action.healthDecayMultiplier
+  }
+
   return {
     ...state,
     inventory,
     completedOneTimeActions,
+    healthDecayMultiplier,
   }
 }

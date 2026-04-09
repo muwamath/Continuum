@@ -4,7 +4,7 @@ import type { GameState } from '../engine/types'
 import type { GameAction } from './useGameState'
 
 const SAVE_KEY = 'continuum-save'
-const SAVE_VERSION = 1
+const SAVE_VERSION = 3
 const AUTO_SAVE_INTERVAL_MS = 30_000
 
 interface SaveData {
@@ -17,9 +17,31 @@ function serialize(state: GameState): string {
   return JSON.stringify(data)
 }
 
+function migrateState(data: SaveData): SaveData {
+  if (data.version === 1) {
+    data.state.health = { current: 10, max: 10 }
+    data.state.rebirth = { count: 0, healthBonus: 0 }
+    data.state.foodCooldowns = {}
+    data.state.runTickCount = data.state.tickCount
+    data.state.isDead = false
+    data.state.pendingRebirthBonus = 0
+    data.version = 2
+  }
+  if (data.version === 2) {
+    data.state.healthDecayMultiplier = 1.0
+    // Migrate health from old BASE_HEALTH of 10 to new 100
+    if (data.state.health.max <= 20) {
+      data.state.health.max = 100 + (data.state.health.max - 10)
+      data.state.health.current = Math.min(data.state.health.current * 10, data.state.health.max)
+    }
+    data.version = 3
+  }
+  return data
+}
+
 function deserialize(json: string): GameState | null {
   try {
-    const data: SaveData = JSON.parse(json)
+    const data: SaveData = migrateState(JSON.parse(json))
     if (data.version !== SAVE_VERSION) return null
     // Ensure completedOneTimeActions is an array (migration safety)
     if (!Array.isArray(data.state.completedOneTimeActions)) {

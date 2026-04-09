@@ -1,0 +1,20 @@
+.health-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.35rem 1rem;
+}
+
+.health-bar__info {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.health-bar__stat {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+}

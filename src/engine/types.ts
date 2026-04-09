@@ -32,6 +32,7 @@ export interface ActionDefinition {
   itemCosts?: ItemCost[]
   isOneTime: boolean
   capacityBonusOnComplete: number
+  healthDecayMultiplier?: number
 }
 
 export interface QueuedAction {
@@ -41,6 +42,16 @@ export interface QueuedAction {
   costsConsumed: number
 }
 
+export interface HealthState {
+  current: number
+  max: number
+}
+
+export interface RebirthState {
+  count: number
+  healthBonus: number
+}
+
 export interface GameState {
   skills: Record<SkillId, SkillState>
   inventory: Record<ItemId, InventoryItemState>
@@ -48,4 +59,11 @@ export interface GameState {
   completedOneTimeActions: string[]
   isPaused: boolean
   tickCount: number
+  health: HealthState
+  rebirth: RebirthState
+  foodCooldowns: Partial<Record<ItemId, number>>
+  runTickCount: number
+  healthDecayMultiplier: number
+  isDead: boolean
+  pendingRebirthBonus: number
 }

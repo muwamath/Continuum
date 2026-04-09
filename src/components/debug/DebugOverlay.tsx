@@ -104,6 +104,13 @@ export function DebugOverlay({ state, dispatch }: DebugOverlayProps) {
       queue: [],
       completedOneTimeActions: [],
       tickCount: 0,
+      health: { current: 100, max: 100 },
+      rebirth: { count: 0, healthBonus: 0 },
+      foodCooldowns: {},
+      runTickCount: 0,
+      healthDecayMultiplier: 1.0,
+      isDead: false,
+      pendingRebirthBonus: 0,
     })
   }
 
@@ -263,6 +270,76 @@ export function DebugOverlay({ state, dispatch }: DebugOverlayProps) {
               />
             </label>
           </div>
+
+          <h3>Health</h3>
+          <div className="debug-skill__fields">
+            <label>
+              Current HP
+              <input
+                type="number"
+                step="0.1"
+                value={editState.health.current}
+                onChange={(e) =>
+                  setEditState({
+                    ...editState,
+                    health: { ...editState.health, current: Number(e.target.value) },
+                  })
+                }
+              />
+            </label>
+            <label>
+              Max HP
+              <input
+                type="number"
+                step="0.1"
+                value={editState.health.max}
+                onChange={(e) =>
+                  setEditState({
+                    ...editState,
+                    health: { ...editState.health, max: Number(e.target.value) },
+                  })
+                }
+              />
+            </label>
+            <label>
+              Rebirth Count
+              <input
+                type="number"
+                value={editState.rebirth.count}
+                onChange={(e) =>
+                  setEditState({
+                    ...editState,
+                    rebirth: { ...editState.rebirth, count: Number(e.target.value) },
+                  })
+                }
+              />
+            </label>
+            <label>
+              Health Bonus
+              <input
+                type="number"
+                step="0.1"
+                value={editState.rebirth.healthBonus}
+                onChange={(e) =>
+                  setEditState({
+                    ...editState,
+                    rebirth: { ...editState.rebirth, healthBonus: Number(e.target.value) },
+                  })
+                }
+              />
+            </label>
+          </div>
+          <button
+            onClick={() =>
+              setEditState({
+                ...editState,
+                health: { ...editState.health, current: 0 },
+              })
+            }
+            className="debug-btn debug-btn--danger"
+          >
+            Kill Player
+          </button>
         </div>
       </div>
     </div>
