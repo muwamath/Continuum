@@ -1,4 +1,4 @@
-import type { MasteryState, SkillState } from './types'
+import type { MasteryState } from './types'
 
 export function getExpToNextLevel(baseExp: number, level: number): number {
   return baseExp * Math.pow(1.1, level)
@@ -27,15 +27,8 @@ export function getMasteryMultiplier(
   return 1.0 + level * perLevel
 }
 
-export function getTotalMultiplier(skill: SkillState): number {
-  // Core mastery uses 0.05 per level, run mastery uses 0.01 per level
-  // These are passed in from skill definitions at the call site
-  // Here we just use the raw skill state — caller provides the multiplier calc
-  return skill.toolMultiplier
-}
-
 export function getTotalMultiplierWithDefs(
-  skill: SkillState,
+  skill: { coreMastery: MasteryState; runMastery: MasteryState; toolMultiplier: number },
   corePerLevel: number,
   runPerLevel: number,
 ): number {

@@ -21,12 +21,27 @@
   min-width: 0;
 }
 
+.queue-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
 .queue-item__name {
   font-size: 0.8rem;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.queue-item__eta {
+  font-size: 0.7rem;
+  font-family: var(--mono);
+  color: var(--text-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .queue-item__cancel {

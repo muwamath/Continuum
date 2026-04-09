@@ -1,3 +1,5 @@
+const APP_VERSION = `${__APP_VERSION__}-${__COMMIT_HASH__}`
+
 import { useGameState } from './hooks/useGameState'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useSaveLoad } from './hooks/useSaveLoad'
@@ -22,6 +24,7 @@ function App() {
         queue={<QueuePanel state={state} dispatch={dispatch} />}
       />
       <DebugOverlay state={state} dispatch={dispatch} />
+      <span className="version-label">v{APP_VERSION}</span>
     </>
   )
 }

@@ -24,6 +24,7 @@ export function QueuePanel({ state, dispatch }: QueuePanelProps) {
               key={item.instanceId}
               item={item}
               isActive={i === 0}
+              skills={state.skills}
               onCancel={() =>
                 dispatch({ type: 'REMOVE_FROM_QUEUE', instanceId: item.instanceId })
               }

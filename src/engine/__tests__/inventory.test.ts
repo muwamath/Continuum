@@ -3,8 +3,6 @@ import {
   canAddItem,
   addItem,
   removeItem,
-  canAfford,
-  spendCosts,
   increaseAllCapacities,
 } from '../inventory'
 import type { InventoryItemState, ItemId } from '../types'
@@ -61,35 +59,6 @@ describe('removeItem', () => {
   it('clamps at 0', () => {
     const result = removeItem(makeInventory(2), 'berry', 5)
     expect(result.berry.count).toBe(0)
-  })
-})
-
-describe('canAfford', () => {
-  it('returns true when player has enough', () => {
-    expect(canAfford(makeInventory(0, 10), [{ itemId: 'wood', amount: 10 }])).toBe(true)
-  })
-
-  it('returns false when player does not have enough', () => {
-    expect(canAfford(makeInventory(0, 5), [{ itemId: 'wood', amount: 10 }])).toBe(false)
-  })
-
-  it('checks multiple costs', () => {
-    const costs = [
-      { itemId: 'berry' as const, amount: 3 },
-      { itemId: 'wood' as const, amount: 5 },
-    ]
-    expect(canAfford(makeInventory(3, 5), costs)).toBe(true)
-    expect(canAfford(makeInventory(2, 5), costs)).toBe(false)
-  })
-})
-
-describe('spendCosts', () => {
-  it('deducts item costs', () => {
-    const result = spendCosts(makeInventory(5, 10), [
-      { itemId: 'wood', amount: 10 },
-    ])
-    expect(result.wood.count).toBe(0)
-    expect(result.berry.count).toBe(5)
   })
 })
 

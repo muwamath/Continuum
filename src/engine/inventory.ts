@@ -1,4 +1,4 @@
-import type { InventoryItemState, ItemCost, ItemId } from './types'
+import type { InventoryItemState, ItemId } from './types'
 
 type InventoryState = Record<ItemId, InventoryItemState>
 
@@ -35,24 +35,6 @@ export function removeItem(
     ...inventory,
     [itemId]: { ...item, count: newCount },
   }
-}
-
-export function canAfford(
-  inventory: InventoryState,
-  costs: ItemCost[],
-): boolean {
-  return costs.every((cost) => inventory[cost.itemId].count >= cost.amount)
-}
-
-export function spendCosts(
-  inventory: InventoryState,
-  costs: ItemCost[],
-): InventoryState {
-  let result = inventory
-  for (const cost of costs) {
-    result = removeItem(result, cost.itemId, cost.amount)
-  }
-  return result
 }
 
 export function increaseAllCapacities(

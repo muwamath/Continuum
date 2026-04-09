@@ -32,10 +32,6 @@ export function removeFromQueue(
   return queue.filter((a) => a.instanceId !== instanceId)
 }
 
-export function peekFront(queue: QueuedAction[]): QueuedAction | undefined {
-  return queue[0]
-}
-
 // For testing: reset the ID counter
 export function _resetInstanceIdCounter(): void {
   nextInstanceId = 1

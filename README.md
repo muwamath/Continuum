@@ -2,6 +2,16 @@
 
 An incremental/idle game inspired by [Increlution](https://store.steampowered.com/app/1593350/Increlution/).
 
+## Features
+
+- 4 skills (Harvest, Logging, Construction, Agility) with dual mastery systems
+- Action queue with front/back insertion and cancel
+- Incremental resource consumption — actions consume materials one at a time as they progress
+- Inventory with capacity upgrades
+- Auto-save to localStorage
+- Fully responsive dark-theme UI
+- Debug overlay on localhost for testing and tuning
+
 ## Tech Stack
 
 - TypeScript (strict)
@@ -17,7 +27,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173/Continuum/](http://localhost:5173/Continuum/) in your browser.
+Open the URL shown in the terminal (usually `http://localhost:5173/Continuum/`).
 
 ## Scripts
 
@@ -30,13 +40,25 @@ Open [http://localhost:5173/Continuum/](http://localhost:5173/Continuum/) in you
 | `npm run test:watch` | Run tests in watch mode |
 | `npm run lint` | Lint with ESLint |
 
+## Development Workflow
+
+1. Create a feature branch from `main`
+2. Develop and test locally (`npm run dev`, `npm test`)
+3. When ready, merge to `main` and push
+4. GitHub Actions automatically deploys to Pages
+
 ## Deployment
 
 Pushing to `main` automatically deploys to GitHub Pages via GitHub Actions.
 
 ## Icon Attribution
 
-Game icons by [game-icons.net](https://game-icons.net/) contributors, licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+Game icons by [game-icons.net](https://game-icons.net/) contributors, licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/):
+- Lorc: wheat, hammer-nails, run, smash-arrows, blackcurrant (berry)
+- Skoll: logging
+- Delapouite: upgrade, wood-pile (wood)
+- Guard13007: pause-button, play-button
+- Sbed: cancel
 
 ## License
 

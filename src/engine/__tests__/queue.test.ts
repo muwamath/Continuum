@@ -4,7 +4,6 @@ import {
   enqueueFront,
   enqueueBack,
   removeFromQueue,
-  peekFront,
   _resetInstanceIdCounter,
 } from '../queue'
 
@@ -18,6 +17,7 @@ describe('createQueuedAction', () => {
     const b = createQueuedAction('harvest-berries')
     expect(a.actionId).toBe('harvest-berries')
     expect(a.progress).toBe(0)
+    expect(a.costsConsumed).toBe(0)
     expect(a.instanceId).not.toBe(b.instanceId)
   })
 })
@@ -52,16 +52,5 @@ describe('removeFromQueue', () => {
     const result = removeFromQueue(queue, a.instanceId)
     expect(result).toHaveLength(1)
     expect(result[0].actionId).toBe('harvest-berries')
-  })
-})
-
-describe('peekFront', () => {
-  it('returns front item', () => {
-    const a = createQueuedAction('cut-wood')
-    expect(peekFront([a])).toBe(a)
-  })
-
-  it('returns undefined for empty queue', () => {
-    expect(peekFront([])).toBeUndefined()
   })
 })
