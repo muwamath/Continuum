@@ -2,7 +2,13 @@ import type { GameState } from './types'
 import { actionDefinitions } from '../data/actionDefinitions'
 import { skillDefinitions } from '../data/skillDefinitions'
 import { addExp, getTotalMultiplierWithDefs } from './skills'
-import { canActionProceed, completeAction } from './actions'
+import {
+  canActionProceed,
+  canActionAffordNextUnit,
+  getRequiredCostsConsumed,
+  tryConsumeNextUnit,
+  completeAction,
+} from './actions'
 import { removeFromQueue } from './queue'
 
 export function processTick(state: GameState): GameState {
@@ -19,7 +25,7 @@ export function processTick(state: GameState): GameState {
     }
   }
 
-  // Check if the action can proceed before ticking (e.g., enough items for costs)
+  // Check basic prerequisites (inventory full for produced item, one-time already done)
   if (!canActionProceed(actionDef, state)) {
     const newQueue = removeFromQueue(state.queue, current.instanceId)
     return {
@@ -27,6 +33,30 @@ export function processTick(state: GameState): GameState {
       queue: newQueue,
       isPaused: newQueue.length === 0,
     }
+  }
+
+  // For actions with costs: ensure we can afford the next unit before progressing
+  if (!canActionAffordNextUnit(actionDef, state, current)) {
+    const newQueue = removeFromQueue(state.queue, current.instanceId)
+    return {
+      ...state,
+      queue: newQueue,
+      isPaused: newQueue.length === 0,
+    }
+  }
+
+  // Consume cost units as needed before progressing
+  let inventory = state.inventory
+  let costsConsumed = current.costsConsumed
+  const needed = getRequiredCostsConsumed(actionDef, current.progress)
+  while (costsConsumed < needed) {
+    const result = tryConsumeNextUnit(actionDef, { ...state, inventory }, {
+      ...current,
+      costsConsumed,
+    })
+    if (!result) break // can't afford — shouldn't happen since we checked above
+    inventory = result.inventory
+    costsConsumed++
   }
 
   const skillId = actionDef.requiredSkill
@@ -54,6 +84,7 @@ export function processTick(state: GameState): GameState {
 
   let newState: GameState = {
     ...state,
+    inventory,
     skills: {
       ...state.skills,
       [skillId]: {
@@ -67,47 +98,64 @@ export function processTick(state: GameState): GameState {
 
   // Update progress
   const newProgress = current.progress + tickExp
+  let newCostsConsumed = costsConsumed
+
   if (newProgress >= actionDef.expCost) {
-    // Check if the action can actually complete (enough items to pay costs, etc.)
-    if (!canActionProceed(actionDef, newState)) {
-      // Can't afford costs or inventory full — skip this action
+    // Action completes
+    newState = completeAction(actionDef, newState)
+
+    if (actionDef.isOneTime) {
       newState = {
         ...newState,
         queue: removeFromQueue(newState.queue, current.instanceId),
       }
     } else {
-      // Action completes
-      newState = completeAction(actionDef, newState)
+      // Reset progress and costs for repeating actions
+      const resetAction = { ...current, progress: 0, costsConsumed: 0 }
+      newState = {
+        ...newState,
+        queue: [resetAction, ...newState.queue.slice(1)],
+      }
 
-      if (actionDef.isOneTime) {
-        // Remove one-time action from queue
+      if (!canActionProceed(actionDef, newState)) {
         newState = {
           ...newState,
           queue: removeFromQueue(newState.queue, current.instanceId),
         }
-      } else {
-        // Reset progress for repeating actions
-        const resetAction = { ...current, progress: 0 }
-        newState = {
-          ...newState,
-          queue: [resetAction, ...newState.queue.slice(1)],
-        }
-
-        // Check if the action can proceed again (inventory full, etc.)
-        if (!canActionProceed(actionDef, newState)) {
-          newState = {
-            ...newState,
-            queue: removeFromQueue(newState.queue, current.instanceId),
-          }
-        }
       }
     }
   } else {
-    // Action still in progress
-    const updatedAction = { ...current, progress: newProgress }
-    newState = {
-      ...newState,
-      queue: [updatedAction, ...newState.queue.slice(1)],
+    // Check if we need to consume the next cost unit for the new progress level
+    const newNeeded = getRequiredCostsConsumed(actionDef, newProgress)
+    while (newCostsConsumed < newNeeded) {
+      const result = tryConsumeNextUnit(actionDef, newState, {
+        ...current,
+        costsConsumed: newCostsConsumed,
+      })
+      if (!result) {
+        // Can't afford next unit — stop here but keep progress so far
+        break
+      }
+      newState = result
+      newCostsConsumed++
+    }
+
+    // If we couldn't consume a needed unit, the action stalls — remove it
+    if (newCostsConsumed < newNeeded) {
+      newState = {
+        ...newState,
+        queue: removeFromQueue(newState.queue, current.instanceId),
+      }
+    } else {
+      const updatedAction = {
+        ...current,
+        progress: newProgress,
+        costsConsumed: newCostsConsumed,
+      }
+      newState = {
+        ...newState,
+        queue: [updatedAction, ...newState.queue.slice(1)],
+      }
     }
   }
 

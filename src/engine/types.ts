@@ -38,6 +38,7 @@ export interface QueuedAction {
   instanceId: string
   actionId: string
   progress: number
+  costsConsumed: number
 }
 
 export interface GameState {

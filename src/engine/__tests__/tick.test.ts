@@ -1,8 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { processTick } from '../tick'
 import { createInitialState } from '../gameState'
 import { createQueuedAction, _resetInstanceIdCounter } from '../queue'
-import { beforeEach } from 'vitest'
 
 beforeEach(() => {
   _resetInstanceIdCounter()
@@ -58,7 +57,6 @@ describe('processTick', () => {
       isPaused: false,
       queue: [createQueuedAction('harvest-berries')],
     }
-    // Harvest Berries: expCost=2, tickExp=0.1 at base, so ~20 ticks to complete
     for (let i = 0; i < 100; i++) {
       state = processTick(state)
       if (state.inventory.berry.count > 0) break
@@ -78,15 +76,11 @@ describe('processTick', () => {
       state = processTick(state)
       if (state.inventory.berry.count > prev.inventory.berry.count) {
         completed = true
-        // After completion, action should still be in queue with reset progress
-        if (state.queue.length > 0) {
-          expect(state.queue[0].progress).toBeLessThan(state.queue[0].progress + 1)
-        }
         break
       }
     }
     expect(completed).toBe(true)
-    expect(state.queue.length).toBeGreaterThan(0) // still repeating
+    expect(state.queue.length).toBeGreaterThan(0)
   })
 
   it('removes action when inventory is full', () => {
@@ -95,8 +89,7 @@ describe('processTick', () => {
       isPaused: false,
       queue: [createQueuedAction('harvest-berries')],
     }
-    state.inventory.berry.count = 9 // one slot left
-    // Run until the berry is produced and action should stop
+    state.inventory.berry.count = 9
     for (let i = 0; i < 200; i++) {
       state = processTick(state)
       if (state.inventory.berry.count >= 10 && state.queue.length === 0) break
@@ -106,7 +99,7 @@ describe('processTick', () => {
     expect(state.isPaused).toBe(true)
   })
 
-  it('removes one-time action after completion', () => {
+  it('wooden cart consumes wood incrementally and completes', () => {
     let state = {
       ...createInitialState(),
       isPaused: false,
@@ -123,25 +116,39 @@ describe('processTick', () => {
     expect(state.inventory.berry.maxCapacity).toBe(15)
   })
 
-  it('skips wooden cart when not enough wood at completion time', () => {
+  it('wooden cart progresses with partial wood and stops when out', () => {
     let state = {
       ...createInitialState(),
       isPaused: false,
       queue: [createQueuedAction('wooden-cart')],
     }
-    state.inventory.wood.count = 5 // not enough (needs 10)
+    state.inventory.wood.count = 3 // only 3 wood, needs 10
     for (let i = 0; i < 500; i++) {
       state = processTick(state)
       if (state.queue.length === 0) break
     }
-    // Should NOT have completed — skipped due to insufficient wood
+    // Should have consumed the 3 wood and progressed partially
+    expect(state.inventory.wood.count).toBe(0)
+    // Should NOT have completed
     expect(state.completedOneTimeActions).not.toContain('wooden-cart')
     expect(state.queue).toHaveLength(0)
     expect(state.isPaused).toBe(true)
-    // Wood should not have been spent
-    expect(state.inventory.wood.count).toBe(5)
-    // Capacities should not have increased
+    // Capacities unchanged
     expect(state.inventory.berry.maxCapacity).toBe(10)
+  })
+
+  it('skips wooden cart when no wood available at all', () => {
+    let state = {
+      ...createInitialState(),
+      isPaused: false,
+      queue: [createQueuedAction('wooden-cart')],
+    }
+    state.inventory.wood.count = 0
+    state = processTick(state)
+    // Immediately removed — can't afford first unit
+    expect(state.queue).toHaveLength(0)
+    expect(state.isPaused).toBe(true)
+    expect(state.completedOneTimeActions).not.toContain('wooden-cart')
   })
 
   it('auto-pauses when queue drains', () => {

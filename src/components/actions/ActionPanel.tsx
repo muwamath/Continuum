@@ -24,6 +24,7 @@ export function ActionPanel({ state, dispatch }: ActionPanelProps) {
           <ActionButton
             key={a.id}
             action={a}
+            skillState={state.skills[a.requiredSkill]}
             onEnqueueFront={() =>
               dispatch({ type: 'ENQUEUE_FRONT', action: createQueuedAction(a.id) })
             }

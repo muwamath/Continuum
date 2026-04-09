@@ -7,6 +7,7 @@ export function createQueuedAction(actionId: string): QueuedAction {
     instanceId: String(nextInstanceId++),
     actionId,
     progress: 0,
+    costsConsumed: 0,
   }
 }
 
