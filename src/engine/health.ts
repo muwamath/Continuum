@@ -1,7 +1,6 @@
 import type { GameState, ItemId } from './types'
 import { itemDefinitions } from '../data/itemDefinitions'
 import { removeItem } from './inventory'
-import { skillDefinitions } from '../data/skillDefinitions'
 
 export const BASE_HEALTH = 100
 export const BASE_DAMAGE_PER_TICK = 0.01

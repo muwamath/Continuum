@@ -1,4 +1,4 @@
-import type { HealthState, RebirthState } from '../../engine/types'
+import type { RebirthState } from '../../engine/types'
 import { getMaxHealth } from '../../engine/health'
 import './DeathScreen.css'
 
