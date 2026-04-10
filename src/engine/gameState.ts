@@ -38,6 +38,7 @@ export function createInitialState(): GameState {
     currentSceneId: 'act1-scene1',
     actionCompletionCounts: {},
     automationSettings: {},
+    asNeededActions: {},
     stalledActionProgress: {},
   }
 }

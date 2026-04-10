@@ -120,6 +120,7 @@ export function performRebirth(state: GameState): GameState {
     currentSceneId: 'act1-scene1',
     actionCompletionCounts: state.actionCompletionCounts,
     automationSettings: state.automationSettings,
+    asNeededActions: state.asNeededActions,
     stalledActionProgress: {},
   }
 }

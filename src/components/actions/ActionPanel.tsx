@@ -4,7 +4,12 @@ import type { ActionCategory, ActionDefinition, GameState } from '../../engine/t
 import { actionDefinitionMap } from '../../data/actionDefinitions'
 import { sceneDefinitions } from '../../data/sceneDefinitions'
 import { createQueuedAction } from '../../engine/queue'
-import { getAutomationThreshold, isAutomationUnlocked } from '../../engine/automation'
+import {
+  getAutomationThreshold,
+  isAutomationUnlocked,
+  cycleAutomationMode,
+  getAutomationMode,
+} from '../../engine/automation'
 import { ActionButton } from './ActionButton'
 import './ActionPanel.css'
 
@@ -19,12 +24,6 @@ const categoryOrder: { id: ActionCategory; label: string }[] = [
   { id: 'exploration', label: 'Exploration' },
 ]
 
-function cycleAutomationPriority(current: number): number {
-  // Off(0) -> 5 -> 4 -> 3 -> 2 -> 1 -> Off(0)
-  if (current === 0) return 5
-  if (current === 1) return 0
-  return current - 1
-}
 
 function renderActionButton(
   a: ActionDefinition,
@@ -34,7 +33,7 @@ function renderActionButton(
   const completionCount = state.actionCompletionCounts[a.id] ?? 0
   const threshold = getAutomationThreshold(a)
   const unlocked = isAutomationUnlocked(a, state.actionCompletionCounts)
-  const priority = state.automationSettings[a.id] ?? 0
+  const mode = getAutomationMode(state, a.id)
 
   return (
     <ActionButton
@@ -44,7 +43,7 @@ function renderActionButton(
       completionCount={completionCount}
       automationThreshold={threshold}
       isAutomationUnlocked={unlocked}
-      automationPriority={priority}
+      automationMode={mode}
       onEnqueueFront={() =>
         dispatch({ type: 'ENQUEUE_FRONT', action: createQueuedAction(a.id) })
       }
@@ -55,7 +54,7 @@ function renderActionButton(
         dispatch({
           type: 'SET_AUTOMATION_PRIORITY',
           actionId: a.id,
-          priority: cycleAutomationPriority(priority),
+          priority: cycleAutomationMode(mode),
         })
       }
     />

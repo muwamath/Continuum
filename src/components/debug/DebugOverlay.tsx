@@ -3,6 +3,9 @@ import type { Dispatch } from 'react'
 import type { GameAction } from '../../hooks/useGameState'
 import type { GameState, SkillId } from '../../engine/types'
 import { skillDefinitions } from '../../data/skillDefinitions'
+import { actionDefinitions } from '../../data/actionDefinitions'
+import { calculateRebirthBonus } from '../../engine/health'
+import { cycleAutomationMode, automationModeLabel } from '../../engine/automation'
 import './DebugOverlay.css'
 
 interface DebugOverlayProps {
@@ -17,6 +20,7 @@ function isLocalhost(): boolean {
 export function DebugOverlay({ state, dispatch }: DebugOverlayProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [editState, setEditState] = useState<GameState | null>(null)
+  const [justCopied, setJustCopied] = useState(false)
   const editStateRef = useRef(editState)
   editStateRef.current = editState
 
@@ -85,6 +89,17 @@ export function DebugOverlay({ state, dispatch }: DebugOverlayProps) {
     setEditState({ ...editState, skills })
   }
 
+  const handleExportState = async () => {
+    const json = JSON.stringify(state, null, 2)
+    try {
+      await navigator.clipboard.writeText(json)
+      setJustCopied(true)
+      setTimeout(() => setJustCopied(false), 1500)
+    } catch {
+      window.prompt('Copy state JSON:', json)
+    }
+  }
+
   const resetAll = () => {
     const skills = { ...editState.skills }
     for (const id of Object.keys(skills) as SkillId[]) {
@@ -120,6 +135,9 @@ export function DebugOverlay({ state, dispatch }: DebugOverlayProps) {
         <div className="debug-overlay__header">
           <h2>Debug Overlay</h2>
           <div className="debug-overlay__header-actions">
+            <button onClick={handleExportState} className="debug-btn">
+              {justCopied ? 'Copied!' : 'Export State'}
+            </button>
             <button
               onClick={() => {
                 if (window.confirm('Completely restart the game? This clears all progress and saved data.')) {
@@ -334,12 +352,54 @@ export function DebugOverlay({ state, dispatch }: DebugOverlayProps) {
               setEditState({
                 ...editState,
                 health: { ...editState.health, current: 0 },
+                isDead: true,
+                isPaused: true,
+                pendingRebirthBonus: calculateRebirthBonus(editState.runTickCount),
               })
             }
             className="debug-btn debug-btn--danger"
           >
             Kill Player
           </button>
+
+          <h3>Automation</h3>
+          <div className="debug-automation">
+            {actionDefinitions.map((a) => {
+              const mode = editState.asNeededActions[a.id]
+                ? ('AN' as const)
+                : (editState.automationSettings[a.id] ?? 0)
+              return (
+                <div key={a.id} className="debug-automation__row">
+                  <span className="debug-automation__name">{a.name}</span>
+                  <button
+                    className="debug-btn debug-btn--small"
+                    onClick={() => {
+                      const next = cycleAutomationMode(mode)
+                      const newSettings = { ...editState.automationSettings }
+                      const newAsNeeded = { ...editState.asNeededActions }
+                      if (next === 'AN') {
+                        delete newSettings[a.id]
+                        newAsNeeded[a.id] = true
+                      } else if (next === 0) {
+                        delete newSettings[a.id]
+                        delete newAsNeeded[a.id]
+                      } else {
+                        newSettings[a.id] = next
+                        delete newAsNeeded[a.id]
+                      }
+                      setEditState({
+                        ...editState,
+                        automationSettings: newSettings,
+                        asNeededActions: newAsNeeded,
+                      })
+                    }}
+                  >
+                    {automationModeLabel(mode)}
+                  </button>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
     </div>

@@ -128,3 +128,22 @@
   font-size: 0.7rem;
   padding: 0.2rem 0.4rem;
 }
+
+.debug-automation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.debug-automation__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.3rem 0.6rem;
+  background: var(--bg-panel);
+  border-radius: 4px;
+}
+
+.debug-automation__name {
+  font-size: 0.85rem;
+}

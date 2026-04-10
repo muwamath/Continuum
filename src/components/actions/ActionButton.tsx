@@ -3,6 +3,8 @@ import type { ActionDefinition, SkillState } from '../../engine/types'
 import type { SkillDefinition } from '../../data/skillDefinitions'
 import { skillDefinitions } from '../../data/skillDefinitions'
 import { itemDefinitions } from '../../data/itemDefinitions'
+import type { AutomationMode } from '../../engine/automation'
+import { automationModeLabel } from '../../engine/automation'
 import { Icon } from '../ui/Icon'
 import { ActionTooltip } from './ActionTooltip'
 import './ActionButton.css'
@@ -13,7 +15,7 @@ interface ActionButtonProps {
   completionCount: number
   automationThreshold: number
   isAutomationUnlocked: boolean
-  automationPriority: number
+  automationMode: AutomationMode
   onEnqueueFront: () => void
   onEnqueueBack: () => void
   onToggleAutomation: () => void
@@ -37,7 +39,7 @@ export function ActionButton({
   completionCount,
   automationThreshold,
   isAutomationUnlocked,
-  automationPriority,
+  automationMode,
   onEnqueueFront,
   onEnqueueBack,
   onToggleAutomation,
@@ -117,12 +119,12 @@ export function ActionButton({
       ) : (
         <button
           key={popKey}
-          className={`action-button__automation ${automationPriority > 0 ? 'action-button__automation--active' : ''}`}
+          className={`action-button__automation ${automationMode !== 0 ? 'action-button__automation--active' : ''}`}
           onClick={handleAutomationClick}
-          title={`Automation priority: ${automationPriority === 0 ? 'Off' : automationPriority}`}
+          title={`Automation: ${automationMode === 0 ? 'Off' : automationMode === 'AN' ? 'As Needed' : `Priority ${automationMode}`}`}
           aria-label={`Toggle automation for ${action.name}`}
         >
-          {automationPriority === 0 ? 'Off' : automationPriority}
+          {automationModeLabel(automationMode)}
         </button>
       )}
       {tooltipPos && (

@@ -39,7 +39,9 @@ Open the URL shown in the terminal (usually `http://localhost:5173/Continuum/`).
 - The active action is the front of the queue. Cancel any queued action with the X button — partial progress and consumed resources are saved and restored if you re-queue it.
 - Press **spacebar** or click the play/pause indicator above the queue to toggle pause.
 - Eat is automatic when health is low and food is available.
-- After enough completions, an action unlocks **automation**: set a priority (1–5) and it will auto-fill the queue when empty.
+- After enough completions, an action unlocks **automation**. Cycle modes via the priority button: **Off → AN → 1 → 2 → 3 → 4 → 5 → Off**.
+  - **1–5**: passive priority (1 runs first). One action fills the queue when it empties.
+  - **AN** (As Needed): reactive — only runs when something needs it. Material producers fire when a downstream action stalls on a missing material; food producers fire when the food count hits 0 and run until full.
 - When you die, rebirth grants a permanent health bonus based on how long you survived. Scenes and inventory reset; completion counts and automation settings persist.
 
 ## Scripts

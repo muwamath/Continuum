@@ -3,6 +3,27 @@ import { actionDefinitionMap } from '../data/actionDefinitions'
 import { createQueuedAction } from './queue'
 import { canActionProceed } from './actions'
 
+export type AutomationMode = number | 'AN'
+
+/** Cycle order: Off → AN → 1 → 2 → 3 → 4 → 5 → Off */
+export function cycleAutomationMode(current: AutomationMode): AutomationMode {
+  if (current === 0) return 'AN'
+  if (current === 'AN') return 1
+  if (current === 5) return 0
+  return (current as number) + 1
+}
+
+export function automationModeLabel(mode: AutomationMode): string {
+  if (mode === 0) return 'Off'
+  if (mode === 'AN') return 'AN'
+  return String(mode)
+}
+
+export function getAutomationMode(state: GameState, actionId: string): AutomationMode {
+  if (state.asNeededActions[actionId]) return 'AN'
+  return state.automationSettings[actionId] ?? 0
+}
+
 export function getAutomationThreshold(actionDef: ActionDefinition): number {
   return actionDef.isOneTime ? 5 : 200
 }
@@ -35,6 +56,7 @@ export function getAutomatedActions(
     .filter((c) => {
       if (!c.def) return false
       if (c.priority === 0) return false
+      if (state.asNeededActions[c.id]) return false // AN actions fire reactively, not passively
       if (c.def.isOneTime && state.completedOneTimeActions.includes(c.id)) return false
       if (!canActionProceed(c.def, state)) return false
       return true
