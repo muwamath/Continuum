@@ -33,6 +33,15 @@ npm run dev
 
 Open the URL shown in the terminal (usually `http://localhost:5173/Continuum/`).
 
+## How to Play
+
+- Click an action on the left to add it to the queue. The game runs at 100ms per tick.
+- The active action is the front of the queue. Cancel any queued action with the X button — partial progress and consumed resources are saved and restored if you re-queue it.
+- Press **spacebar** or click the play/pause indicator above the queue to toggle pause.
+- Eat is automatic when health is low and food is available.
+- After enough completions, an action unlocks **automation**: set a priority (1–5) and it will auto-fill the queue when empty.
+- When you die, rebirth grants a permanent health bonus based on how long you survived. Scenes and inventory reset; completion counts and automation settings persist.
+
 ## Scripts
 
 | Command | Description |

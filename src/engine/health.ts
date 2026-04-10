@@ -105,6 +105,7 @@ export function performRebirth(state: GameState): GameState {
     queue: [],
     completedOneTimeActions: [],
     isPaused: true,
+    pausedByUser: false,
     health: { current: newMax, max: newMax },
     rebirth: {
       count: state.rebirth.count + 1,
@@ -115,9 +116,10 @@ export function performRebirth(state: GameState): GameState {
     healthDecayMultiplier: 1.0,
     isDead: false,
     pendingRebirthBonus: 0,
-    // Scenes, completion counts, and automation persist across rebirths
-    currentSceneId: state.currentSceneId,
+    // Scene resets on rebirth so all actions are available again
+    currentSceneId: 'act1-scene1',
     actionCompletionCounts: state.actionCompletionCounts,
     automationSettings: state.automationSettings,
+    stalledActionProgress: {},
   }
 }
