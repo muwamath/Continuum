@@ -4,7 +4,7 @@ import type { GameState } from '../engine/types'
 import type { GameAction } from './useGameState'
 
 const SAVE_KEY = 'continuum-save'
-const SAVE_VERSION = 7
+const SAVE_VERSION = 8
 const AUTO_SAVE_INTERVAL_MS = 30_000
 
 interface SaveData {
@@ -12,9 +12,18 @@ interface SaveData {
   state: GameState
 }
 
-function serialize(state: GameState): string {
+export function serializeSave(state: GameState): string {
   const data: SaveData = { version: SAVE_VERSION, state }
-  return JSON.stringify(data)
+  return JSON.stringify(data, null, 2)
+}
+
+/**
+ * Parse an imported save JSON string and return the restored GameState,
+ * running any necessary migrations. Returns null if the JSON is malformed
+ * or can't be migrated to the current version.
+ */
+export function importSaveJson(json: string): GameState | null {
+  return deserialize(json)
 }
 
 function migrateState(data: SaveData): SaveData {
@@ -67,6 +76,21 @@ function migrateState(data: SaveData): SaveData {
     data.state.perks = { ironStomach: 0, quickLearner: 0, heartyMeals: 0 }
     data.version = 7
   }
+  if (data.version === 7) {
+    // 6 new skills added. Initialize them on existing saves so display code doesn't crash.
+    const defaultSkill = {
+      coreMastery: { level: 0, currentExp: 0 },
+      runMastery: { level: 0, currentExp: 0 },
+      toolMultiplier: 1.0,
+    }
+    const newSkillIds = ['mining', 'fishing', 'hunting', 'cooking', 'smithing', 'talking'] as const
+    for (const id of newSkillIds) {
+      if (!data.state.skills[id]) {
+        data.state.skills[id] = { ...defaultSkill }
+      }
+    }
+    data.version = 8
+  }
   return data
 }
 
@@ -91,7 +115,7 @@ export function loadSavedState(): GameState | null {
 }
 
 function saveState(state: GameState): void {
-  localStorage.setItem(SAVE_KEY, serialize(state))
+  localStorage.setItem(SAVE_KEY, serializeSave(state))
 }
 
 export function useSaveLoad(
