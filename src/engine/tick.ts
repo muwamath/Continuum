@@ -1,6 +1,7 @@
 import type { GameState } from './types'
 import { actionDefinitions } from '../data/actionDefinitions'
 import { skillDefinitions } from '../data/skillDefinitions'
+import { sceneDefinitions } from '../data/sceneDefinitions'
 import { addExp, getTotalMultiplierWithDefs } from './skills'
 import {
   canActionProceed,
@@ -17,6 +18,17 @@ import {
   processAutoEat,
   tickCooldowns,
 } from './health'
+import { getAutomatedActions } from './automation'
+
+function tryFillAutomationQueue(state: GameState): GameState {
+  const scene = sceneDefinitions[state.currentSceneId]
+  if (!scene) return { ...state, isPaused: true }
+  const automated = getAutomatedActions(state, scene.actionIds)
+  if (automated.length > 0) {
+    return { ...state, queue: automated }
+  }
+  return { ...state, isPaused: true }
+}
 
 export function processTick(state: GameState): GameState {
   if (state.isPaused || state.isDead || state.queue.length === 0) {
@@ -36,21 +48,19 @@ export function processTick(state: GameState): GameState {
   // Check basic prerequisites (inventory full for produced item, one-time already done)
   if (!canActionProceed(actionDef, state)) {
     const newQueue = removeFromQueue(state.queue, current.instanceId)
-    return {
-      ...state,
-      queue: newQueue,
-      isPaused: newQueue.length === 0,
+    if (newQueue.length === 0) {
+      return tryFillAutomationQueue({ ...state, queue: newQueue })
     }
+    return { ...state, queue: newQueue }
   }
 
   // For actions with costs: ensure we can afford the next unit before progressing
   if (!canActionAffordNextUnit(actionDef, state, current)) {
     const newQueue = removeFromQueue(state.queue, current.instanceId)
-    return {
-      ...state,
-      queue: newQueue,
-      isPaused: newQueue.length === 0,
+    if (newQueue.length === 0) {
+      return tryFillAutomationQueue({ ...state, queue: newQueue })
     }
+    return { ...state, queue: newQueue }
   }
 
   // Health: apply damage, auto-eat, death check
@@ -194,9 +204,18 @@ export function processTick(state: GameState): GameState {
     }
   }
 
-  // Auto-pause if queue is empty
+  // Auto-fill from automation if queue is empty
   if (newState.queue.length === 0) {
-    newState = { ...newState, isPaused: true }
+    newState = tryFillAutomationQueue(newState)
+  }
+
+  // Food depletion trigger: if berries hit 0, try automation refill
+  if (
+    newState.queue.length > 0 &&
+    newState.inventory.berry.count === 0 &&
+    state.inventory.berry.count > 0
+  ) {
+    newState = tryFillAutomationQueue(newState)
   }
 
   return newState

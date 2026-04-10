@@ -13,6 +13,7 @@ export type GameAction =
   | { type: 'SET_DEBUG_STATE'; state: Partial<GameState> }
   | { type: 'RESTART' }
   | { type: 'CONTINUE_REBIRTH' }
+  | { type: 'SET_AUTOMATION_PRIORITY'; actionId: string; priority: number }
 
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -47,6 +48,16 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'CONTINUE_REBIRTH':
       return performRebirth(state)
+
+    case 'SET_AUTOMATION_PRIORITY': {
+      const newSettings = { ...state.automationSettings }
+      if (action.priority === 0) {
+        delete newSettings[action.actionId]
+      } else {
+        newSettings[action.actionId] = action.priority
+      }
+      return { ...state, automationSettings: newSettings }
+    }
 
     case 'RESTART':
       localStorage.removeItem('continuum-save')

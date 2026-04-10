@@ -25,6 +25,12 @@ function App() {
         inventory={<InventoryPanel inventory={state.inventory} />}
         actions={<ActionPanel state={state} dispatch={dispatch} />}
         queue={<QueuePanel state={state} dispatch={dispatch} />}
+        footer={
+          <>
+            <DebugOverlay state={state} dispatch={dispatch} />
+            <span className="version-label">v{APP_VERSION}</span>
+          </>
+        }
       />
       {state.isDead && (
         <DeathScreen
@@ -33,8 +39,6 @@ function App() {
           onContinue={() => dispatch({ type: 'CONTINUE_REBIRTH' })}
         />
       )}
-      <DebugOverlay state={state} dispatch={dispatch} />
-      <span className="version-label">v{APP_VERSION}</span>
     </>
   )
 }

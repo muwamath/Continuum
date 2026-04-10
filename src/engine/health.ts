@@ -115,5 +115,9 @@ export function performRebirth(state: GameState): GameState {
     healthDecayMultiplier: 1.0,
     isDead: false,
     pendingRebirthBonus: 0,
+    // Scenes, completion counts, and automation persist across rebirths
+    currentSceneId: state.currentSceneId,
+    actionCompletionCounts: state.actionCompletionCounts,
+    automationSettings: state.automationSettings,
   }
 }

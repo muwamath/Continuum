@@ -34,5 +34,8 @@ export function createInitialState(): GameState {
     healthDecayMultiplier: 1.0,
     isDead: false,
     pendingRebirthBonus: 0,
+    currentSceneId: 'act1-scene1',
+    actionCompletionCounts: {},
+    automationSettings: {},
   }
 }

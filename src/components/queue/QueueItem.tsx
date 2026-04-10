@@ -14,14 +14,14 @@ interface QueueItemProps {
 }
 
 function formatEta(seconds: number): string {
-  if (seconds < 1) return '< 1s'
+  if (seconds < 0.1) return '< 0.1s'
   const h = Math.floor(seconds / 3600)
   const m = Math.floor((seconds % 3600) / 60)
-  const s = Math.floor(seconds % 60)
+  const s = seconds % 60
   const parts: string[] = []
   if (h > 0) parts.push(`${h}h`)
   if (m > 0) parts.push(`${m}m`)
-  if (s > 0 || parts.length === 0) parts.push(`${s}s`)
+  parts.push(`${s.toFixed(1)}s`)
   return parts.join(' ')
 }
 

@@ -131,10 +131,27 @@ export function completeAction(
     healthDecayMultiplier *= action.healthDecayMultiplier
   }
 
+  // Increment global completion count
+  const actionCompletionCounts = {
+    ...state.actionCompletionCounts,
+    [action.id]: (state.actionCompletionCounts[action.id] ?? 0) + 1,
+  }
+
+  // Scene transition
+  let currentSceneId = state.currentSceneId
+  let queue = state.queue
+  if (action.leadsToScene) {
+    currentSceneId = action.leadsToScene
+    queue = [] // clear queue on scene transition
+  }
+
   return {
     ...state,
     inventory,
     completedOneTimeActions,
     healthDecayMultiplier,
+    actionCompletionCounts,
+    currentSceneId,
+    queue,
   }
 }

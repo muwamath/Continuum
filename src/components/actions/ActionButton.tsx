@@ -10,13 +10,35 @@ import './ActionButton.css'
 interface ActionButtonProps {
   action: ActionDefinition
   skillState: SkillState
+  completionCount: number
+  automationThreshold: number
+  isAutomationUnlocked: boolean
+  automationPriority: number
   onEnqueueFront: () => void
   onEnqueueBack: () => void
+  onToggleAutomation: () => void
 }
 
-export function ActionButton({ action, skillState, onEnqueueFront, onEnqueueBack }: ActionButtonProps) {
+export function ActionButton({
+  action,
+  skillState,
+  completionCount,
+  automationThreshold,
+  isAutomationUnlocked,
+  automationPriority,
+  onEnqueueFront,
+  onEnqueueBack,
+  onToggleAutomation,
+}: ActionButtonProps) {
   const [showTooltip, setShowTooltip] = useState(false)
+  const [showGearTooltip, setShowGearTooltip] = useState(false)
+  const [popKey, setPopKey] = useState(0)
   const skillDef: SkillDefinition = skillDefinitions[action.requiredSkill]
+
+  function handleAutomationClick() {
+    setPopKey((k) => k + 1)
+    onToggleAutomation()
+  }
 
   return (
     <div
@@ -51,6 +73,30 @@ export function ActionButton({ action, skillState, onEnqueueFront, onEnqueueBack
       >
         <Icon name="smash-arrows" size={18} alt="" />
       </button>
+      {!isAutomationUnlocked ? (
+        <div
+          className="action-button__gear-wrapper"
+          onMouseEnter={() => setShowGearTooltip(true)}
+          onMouseLeave={() => setShowGearTooltip(false)}
+        >
+          <Icon name="big-gear" size={18} alt="Automation progress" />
+          {showGearTooltip && (
+            <div className="action-button__gear-tooltip">
+              {completionCount} / {automationThreshold} completions
+            </div>
+          )}
+        </div>
+      ) : (
+        <button
+          key={popKey}
+          className={`action-button__automation ${automationPriority > 0 ? 'action-button__automation--active' : ''}`}
+          onClick={handleAutomationClick}
+          title={`Automation priority: ${automationPriority === 0 ? 'Off' : automationPriority}`}
+          aria-label={`Toggle automation for ${action.name}`}
+        >
+          {automationPriority === 0 ? 'Off' : automationPriority}
+        </button>
+      )}
       {showTooltip && (
         <ActionTooltip action={action} skillDef={skillDef} skillState={skillState} />
       )}

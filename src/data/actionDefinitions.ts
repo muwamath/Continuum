@@ -40,4 +40,22 @@ export const actionDefinitions: ActionDefinition[] = [
     capacityBonusOnComplete: 0,
     healthDecayMultiplier: 0.5,
   },
+  {
+    id: 'explore-the-area',
+    name: 'Explore the Area',
+    requiredSkill: 'agility',
+    expCost: 20,
+    isOneTime: true,
+    capacityBonusOnComplete: 0,
+    leadsToScene: 'act1-scene2',
+  },
+  {
+    id: 'climb-the-mountain',
+    name: 'Climb the Mountain',
+    requiredSkill: 'agility',
+    expCost: 4_000_000,
+    isOneTime: true,
+    capacityBonusOnComplete: 0,
+    leadsToScene: 'act1-scene1',
+  },
 ]

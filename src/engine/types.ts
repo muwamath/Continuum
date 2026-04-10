@@ -33,6 +33,7 @@ export interface ActionDefinition {
   isOneTime: boolean
   capacityBonusOnComplete: number
   healthDecayMultiplier?: number
+  leadsToScene?: string
 }
 
 export interface QueuedAction {
@@ -66,4 +67,7 @@ export interface GameState {
   healthDecayMultiplier: number
   isDead: boolean
   pendingRebirthBonus: number
+  currentSceneId: string
+  actionCompletionCounts: Record<string, number>
+  automationSettings: Record<string, number>
 }

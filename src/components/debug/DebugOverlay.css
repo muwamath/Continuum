@@ -1,8 +1,4 @@
 .debug-toggle {
-  position: fixed;
-  bottom: 0.5rem;
-  right: 0.5rem;
-  z-index: 1000;
   padding: 0.3rem 0.6rem;
   font-size: 0.7rem;
   font-family: var(--mono);

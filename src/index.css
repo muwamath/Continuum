@@ -45,13 +45,8 @@ button {
 }
 
 .version-label {
-  position: fixed;
-  bottom: 0.5rem;
-  right: 4rem;
   font-size: 0.65rem;
   font-family: var(--mono);
   color: var(--text-dim);
   opacity: 0.5;
-  pointer-events: none;
-  z-index: 999;
 }
