@@ -3,17 +3,27 @@ import './GameStateIndicator.css'
 
 interface GameStateIndicatorProps {
   isPaused: boolean
+  pausedByUser: boolean
+  onTogglePause: () => void
 }
 
-export function GameStateIndicator({ isPaused }: GameStateIndicatorProps) {
+export function GameStateIndicator({ isPaused, pausedByUser, onTogglePause }: GameStateIndicatorProps) {
+  const label = isPaused
+    ? (pausedByUser ? 'Paused by User' : 'Paused')
+    : 'Running'
+
   return (
-    <div className={`game-state ${isPaused ? 'game-state--paused' : 'game-state--running'}`}>
+    <button
+      className={`game-state ${isPaused ? 'game-state--paused' : 'game-state--running'}`}
+      onClick={onTogglePause}
+      title="Toggle pause (Space)"
+    >
       <Icon
         name={isPaused ? 'pause-button' : 'play-button'}
         size={20}
-        alt={isPaused ? 'Paused' : 'Running'}
+        alt={label}
       />
-      <span>{isPaused ? 'Paused' : 'Running'}</span>
-    </div>
+      <span>{label}</span>
+    </button>
   )
 }

@@ -145,6 +145,9 @@ export function completeAction(
     queue = [] // clear queue on scene transition
   }
 
+  // Clear any stalled progress for this action since it completed
+  const { [action.id]: _, ...remainingStalledProgress } = state.stalledActionProgress
+
   return {
     ...state,
     inventory,
@@ -153,5 +156,6 @@ export function completeAction(
     actionCompletionCounts,
     currentSceneId,
     queue,
+    stalledActionProgress: remainingStalledProgress,
   }
 }

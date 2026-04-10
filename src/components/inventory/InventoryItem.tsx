@@ -15,6 +15,10 @@ export function InventoryItem({ itemId, state }: InventoryItemProps) {
   const [showTooltip, setShowTooltip] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
+  const fillRatio = state.maxCapacity > 0 ? state.count / state.maxCapacity : 0
+  // Hue: 0 (red) at empty → 120 (green) at full
+  const borderColor = `hsl(${Math.round(fillRatio * 120)}, 70%, 45%)`
+
   function getTooltipPos() {
     if (!ref.current) return { top: 0, left: 0 }
     const rect = ref.current.getBoundingClientRect()
@@ -24,6 +28,7 @@ export function InventoryItem({ itemId, state }: InventoryItemProps) {
   return (
     <div
       className={`inventory-item ${atCapacity ? 'inventory-item--full' : ''}`}
+      style={{ borderColor }}
       ref={ref}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}

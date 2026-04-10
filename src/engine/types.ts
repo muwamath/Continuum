@@ -47,6 +47,11 @@ export interface QueuedAction {
   costsConsumed: number
 }
 
+export interface StalledProgress {
+  progress: number
+  costsConsumed: number
+}
+
 export interface HealthState {
   current: number
   max: number
@@ -63,6 +68,7 @@ export interface GameState {
   queue: QueuedAction[]
   completedOneTimeActions: string[]
   isPaused: boolean
+  pausedByUser: boolean
   tickCount: number
   health: HealthState
   rebirth: RebirthState
@@ -74,4 +80,5 @@ export interface GameState {
   currentSceneId: string
   actionCompletionCounts: Record<string, number>
   automationSettings: Record<string, number>
+  stalledActionProgress: Record<string, StalledProgress>
 }

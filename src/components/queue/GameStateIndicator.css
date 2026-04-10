@@ -6,6 +6,14 @@
   border-radius: 6px;
   font-size: 0.85rem;
   font-weight: 600;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.game-state:hover {
+  border-color: var(--border-color);
 }
 
 .game-state--running {

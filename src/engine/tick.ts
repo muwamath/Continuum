@@ -11,7 +11,7 @@ import {
   tryConsumeNextUnit,
   completeAction,
 } from './actions'
-import { removeFromQueue } from './queue'
+import { removeFromQueue, stalledRemoval } from './queue'
 import {
   applyTickDamage,
   checkIsDead,
@@ -24,7 +24,7 @@ import { getAutomatedActions } from './automation'
 function tryFillAutomationQueue(state: GameState): GameState {
   const scene = sceneDefinitions[state.currentSceneId]
   if (!scene) return { ...state, isPaused: true }
-  const automated = getAutomatedActions(state, scene.actionIds)
+  const automated = getAutomatedActions(state, scene.actionIds, state.stalledActionProgress)
   if (automated.length > 0) {
     return { ...state, queue: automated }
   }
@@ -57,11 +57,12 @@ export function processTick(state: GameState): GameState {
 
   // For actions with costs: ensure we can afford the next unit before progressing
   if (!canActionAffordNextUnit(actionDef, state, current)) {
-    const newQueue = removeFromQueue(state.queue, current.instanceId)
-    if (newQueue.length === 0) {
-      return tryFillAutomationQueue({ ...state, queue: newQueue })
+    const result = stalledRemoval(state.queue, current.instanceId, state.stalledActionProgress)
+    const stalledState = { ...state, ...result }
+    if (result.queue.length === 0) {
+      return tryFillAutomationQueue(stalledState)
     }
-    return { ...state, queue: newQueue }
+    return stalledState
   }
 
   // Health: apply damage, auto-eat, death check
@@ -186,12 +187,10 @@ export function processTick(state: GameState): GameState {
       newCostsConsumed++
     }
 
-    // If we couldn't consume a needed unit, the action stalls — remove it
+    // If we couldn't consume a needed unit, the action stalls — save progress and remove it
     if (newCostsConsumed < newNeeded) {
-      newState = {
-        ...newState,
-        queue: removeFromQueue(newState.queue, current.instanceId),
-      }
+      const result = stalledRemoval(newState.queue, current.instanceId, newState.stalledActionProgress)
+      newState = { ...newState, ...result }
     } else {
       const updatedAction = {
         ...current,

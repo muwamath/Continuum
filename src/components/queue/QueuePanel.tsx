@@ -13,7 +13,11 @@ interface QueuePanelProps {
 export function QueuePanel({ state, dispatch }: QueuePanelProps) {
   return (
     <div className="queue-panel">
-      <GameStateIndicator isPaused={state.isPaused} />
+      <GameStateIndicator
+        isPaused={state.isPaused}
+        pausedByUser={state.pausedByUser}
+        onTogglePause={() => dispatch({ type: 'TOGGLE_PAUSE' })}
+      />
       <h2 className="queue-panel__title">Action Queue</h2>
       <div className="queue-panel__list">
         {state.queue.length === 0 ? (

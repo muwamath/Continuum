@@ -1,6 +1,7 @@
-import type { ActionDefinition, GameState, QueuedAction } from './types'
+import type { ActionDefinition, GameState, QueuedAction, StalledProgress } from './types'
 import { actionDefinitionMap } from '../data/actionDefinitions'
 import { createQueuedAction } from './queue'
+import { canActionProceed } from './actions'
 
 export function getAutomationThreshold(actionDef: ActionDefinition): number {
   return actionDef.isOneTime ? 5 : 200
@@ -22,6 +23,7 @@ export function isAutomationUnlocked(
 export function getAutomatedActions(
   state: GameState,
   sceneActionIds: string[],
+  stalledProgress?: Record<string, StalledProgress>,
 ): QueuedAction[] {
   const candidates = sceneActionIds
     .map((id, index) => ({
@@ -34,6 +36,7 @@ export function getAutomatedActions(
       if (!c.def) return false
       if (c.priority === 0) return false
       if (c.def.isOneTime && state.completedOneTimeActions.includes(c.id)) return false
+      if (!canActionProceed(c.def, state)) return false
       return true
     })
 
@@ -42,5 +45,5 @@ export function getAutomatedActions(
     return a.index - b.index
   })
 
-  return candidates.map((c) => createQueuedAction(c.id))
+  return candidates.map((c) => createQueuedAction(c.id, stalledProgress))
 }

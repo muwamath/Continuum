@@ -1,6 +1,7 @@
 const buildTime = new Date(__BUILD_TIME__).toLocaleTimeString()
 const APP_VERSION = `${__APP_VERSION__} · ${__COMMIT_HASH__} · ${buildTime}`
 
+import { useEffect } from 'react'
 import { useGameState } from './hooks/useGameState'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useSaveLoad } from './hooks/useSaveLoad'
@@ -17,6 +18,17 @@ function App() {
   const [state, dispatch] = useGameState()
   useGameLoop(state.isPaused, dispatch)
   useSaveLoad(state, dispatch)
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault()
+        dispatch({ type: 'TOGGLE_PAUSE' })
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [dispatch])
 
   return (
     <>

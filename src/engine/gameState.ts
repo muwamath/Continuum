@@ -26,6 +26,7 @@ export function createInitialState(): GameState {
     queue: [],
     completedOneTimeActions: [],
     isPaused: true,
+    pausedByUser: false,
     tickCount: 0,
     health: { current: 100, max: 100 },
     rebirth: { count: 0, healthBonus: 0 },
@@ -37,5 +38,6 @@ export function createInitialState(): GameState {
     currentSceneId: 'act1-scene1',
     actionCompletionCounts: {},
     automationSettings: {},
+    stalledActionProgress: {},
   }
 }

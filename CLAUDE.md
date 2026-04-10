@@ -16,19 +16,19 @@
 ## Key Design Decisions
 
 ### Scenes & Acts
-The game is organized into Acts containing Scenes. Each scene defines which actions are available via `actionIds`. Actions can appear in multiple scenes. Completing an action with `leadsToScene` transitions the player to a new scene and clears the queue. Scene state persists across rebirths.
+The game is organized into Acts containing Scenes. Each scene defines which actions are available via `actionIds`. Actions can appear in multiple scenes. Completing an action with `leadsToScene` transitions the player to a new scene and clears the queue. Scenes reset to `act1-scene1` on rebirth.
 
 ### Automation
 Actions track global completion counts (`actionCompletionCounts`). After reaching a threshold (200 for repeatable, 5 for one-time), automation unlocks. Players set priority 1–5 (1 runs first). When the queue empties or food depletes, automated actions fill the queue sorted by priority, then scene order. Logic lives in `src/engine/automation.ts`.
 
 ### Incremental Cost Consumption
-Actions with item costs (e.g., Wooden Cart needs 10 wood) consume resources **one at a time** as progress advances, not all at once on completion. Each unit funds a fraction of the total progress (`expCost / totalUnits`). If resources run out mid-build, the action stalls and is removed. Canceling forfeits consumed resources. This is tracked via `costsConsumed` on `QueuedAction`.
+Actions with item costs (e.g., Wooden Cart needs 10 wood) consume resources **one at a time** as progress advances, not all at once on completion. Each unit funds a fraction of the total progress (`expCost / totalUnits`). If resources run out mid-build, the action stalls — progress and consumed costs are saved to `stalledActionProgress` on `GameState` and restored when the action is re-queued (manually or via automation). This is tracked via `costsConsumed` on `QueuedAction`.
 
 ### State Management
 `useReducer` with a single immutable `GameState` object. The reducer dispatches to pure engine functions. No Context needed yet — state is passed as props from `App.tsx`.
 
 ### Game Loop
-`setInterval` at 100ms dispatching `TICK`. Starts/stops based on `isPaused`. The tick function short-circuits when paused or queue is empty.
+`setInterval` at 100ms dispatching `TICK`. Starts/stops based on `isPaused`. The tick function short-circuits when paused or queue is empty. Players can toggle pause via spacebar or clicking the play/pause indicator in the queue panel. User-initiated pauses display "Paused by User" (tracked via `pausedByUser` on `GameState`).
 
 ## Code Style
 - Functional components with hooks only
