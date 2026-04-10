@@ -45,6 +45,11 @@ export interface QueuedAction {
   actionId: string
   progress: number
   costsConsumed: number
+  /**
+   * If set, this is a finite "as needed" run. Each completion of a repeating action
+   * decrements it; when it hits 0 the action is removed instead of repeating.
+   */
+  targetCount?: number
 }
 
 export interface StalledProgress {
@@ -80,5 +85,7 @@ export interface GameState {
   currentSceneId: string
   actionCompletionCounts: Record<string, number>
   automationSettings: Record<string, number>
+  /** Action ids whose automation mode is "as needed" — reactive, not passive. */
+  asNeededActions: Record<string, true>
   stalledActionProgress: Record<string, StalledProgress>
 }

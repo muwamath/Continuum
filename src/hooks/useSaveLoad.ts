@@ -4,7 +4,7 @@ import type { GameState } from '../engine/types'
 import type { GameAction } from './useGameState'
 
 const SAVE_KEY = 'continuum-save'
-const SAVE_VERSION = 4
+const SAVE_VERSION = 5
 const AUTO_SAVE_INTERVAL_MS = 30_000
 
 interface SaveData {
@@ -41,6 +41,10 @@ function migrateState(data: SaveData): SaveData {
     data.state.actionCompletionCounts = {}
     data.state.automationSettings = {}
     data.version = 4
+  }
+  if (data.version === 4) {
+    data.state.asNeededActions = {}
+    data.version = 5
   }
   return data
 }

@@ -5,14 +5,17 @@ let nextInstanceId = 1
 export function createQueuedAction(
   actionId: string,
   stalledProgress?: Record<string, StalledProgress>,
+  targetCount?: number,
 ): QueuedAction {
   const saved = stalledProgress?.[actionId]
-  return {
+  const action: QueuedAction = {
     instanceId: String(nextInstanceId++),
     actionId,
     progress: saved?.progress ?? 0,
     costsConsumed: saved?.costsConsumed ?? 0,
   }
+  if (targetCount !== undefined) action.targetCount = targetCount
+  return action
 }
 
 export function stalledRemoval(

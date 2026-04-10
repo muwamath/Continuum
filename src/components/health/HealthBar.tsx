@@ -29,6 +29,7 @@ export function HealthBar({ health, runTickCount, healthDecayMultiplier }: Healt
 
   return (
     <div className="health-bar">
+      <ProgressBar value={ratio} color={getHealthColor(ratio)} height={32} />
       <div className="health-bar__info">
         <span className="health-bar__stat">
           <Icon name="stopwatch" size={16} />
@@ -43,11 +44,6 @@ export function HealthBar({ health, runTickCount, healthDecayMultiplier }: Healt
           {damagePerTick.toFixed(4)}/tick
         </span>
       </div>
-      <ProgressBar
-        value={ratio}
-        color={getHealthColor(ratio)}
-        height={16}
-      />
     </div>
   )
 }

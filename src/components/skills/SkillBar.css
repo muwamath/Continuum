@@ -1,5 +1,11 @@
 .skill-bar {
   display: flex;
   gap: 0.75rem;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.skill-bar > .skill-card {
+  flex: 1 1 0;
+  min-width: 0;
 }

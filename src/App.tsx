@@ -30,6 +30,13 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [dispatch])
 
+  // Background automation: when paused with empty queue (but not user-paused), try to fill from automation
+  useEffect(() => {
+    if (state.isPaused && !state.pausedByUser && !state.isDead && state.queue.length === 0) {
+      dispatch({ type: 'AUTO_FILL_QUEUE' })
+    }
+  }, [state.isPaused, state.pausedByUser, state.isDead, state.queue.length, dispatch])
+
   return (
     <>
       <GameLayout

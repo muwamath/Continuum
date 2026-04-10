@@ -19,7 +19,7 @@
 The game is organized into Acts containing Scenes. Each scene defines which actions are available via `actionIds`. Actions can appear in multiple scenes. Completing an action with `leadsToScene` transitions the player to a new scene and clears the queue. Scenes reset to `act1-scene1` on rebirth.
 
 ### Automation
-Actions track global completion counts (`actionCompletionCounts`). After reaching a threshold (200 for repeatable, 5 for one-time), automation unlocks. Players set priority 1–5 (1 runs first). When the queue empties or food depletes, automated actions fill the queue sorted by priority, then scene order. Logic lives in `src/engine/automation.ts`.
+Actions track global completion counts (`actionCompletionCounts`). After reaching a threshold (200 for repeatable, 5 for one-time), automation unlocks. Players cycle modes via the priority button: Off → AN → 1 → 2 → 3 → 4 → 5 → Off. Numeric priorities (1 highest) are stored in `automationSettings`. The "AN" (As Needed) mode is stored in `asNeededActions` and fires reactively, not passively: AN producers are injected at the front of the queue with a finite `targetCount` when a downstream action stalls on a missing material, or when a food item drops to 0 (gathered until full). Passive automation fills one action at a time when the queue empties; logic lives in `src/engine/automation.ts` and `src/engine/tick.ts`.
 
 ### Incremental Cost Consumption
 Actions with item costs (e.g., Wooden Cart needs 10 wood) consume resources **one at a time** as progress advances, not all at once on completion. Each unit funds a fraction of the total progress (`expCost / totalUnits`). If resources run out mid-build, the action stalls — progress and consumed costs are saved to `stalledActionProgress` on `GameState` and restored when the action is re-queued (manually or via automation). This is tracked via `costsConsumed` on `QueuedAction`.
@@ -62,6 +62,8 @@ Actions with item costs (e.g., Wooden Cart needs 10 wood) consume resources **on
 - Tooltips use `position: fixed` with `z-index: 9999` to escape stacking contexts
 - Actions grouped by category (Gathering, Construction, Exploration)
 - Inventory grouped by category (Provisions, Materials)
+- Skill cards stretch equidistantly across the row (`flex: 1` with `space-between`)
+- Health bar is double-height with the timer / HP / damage stats overlaid centered on top of the fill
 
 ## Debug Overlay
 - Only available on `localhost` (checked via `window.location.hostname`)
