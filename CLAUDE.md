@@ -21,6 +21,14 @@ The game is organized into Acts containing Scenes. Each scene defines which acti
 ### Automation
 Actions track global completion counts (`actionCompletionCounts`). After reaching a threshold (200 for repeatable, 5 for one-time), automation unlocks. Players cycle modes via the priority button: Off → AN → 1 → 2 → 3 → 4 → 5 → Off. Numeric priorities (1 highest) are stored in `automationSettings`. The "AN" (As Needed) mode is stored in `asNeededActions` and fires reactively, not passively: AN producers are injected at the front of the queue with a finite `targetCount` when a downstream action stalls on a missing material, or when a food item drops to 0 (gathered until full). Passive automation fills one action at a time when the queue empties; logic lives in `src/engine/automation.ts` and `src/engine/tick.ts`.
 
+### Skill Points & Perks
+Survive 15 minutes in a single run to earn 1 skill point (`runTickCount % 9000`). Skill points and purchased perks both persist across rebirths. Three perks are spent on the death screen:
+- **Iron Stomach** — reduces health decay rate (`-0.5%` per level, capped at `-50%`).
+- **Quick Learner** — reduces automation unlock thresholds (`-0.5%` per level, capped at `-50%`, min 1).
+- **Hearty Meals** — increases food healing (`+0.5%` per level, no cap).
+
+Tuning constants live in `src/engine/health.ts` (`PERK_INCREMENT`, `PERK_DECAY_CAP`, `PERK_THRESHOLD_CAP`). The `Iron Stomach` and `Hearty Meals` effects are applied in `tick.ts`/`processAutoEat`; `Quick Learner` is applied via `getEffectiveAutomationThreshold` in `automation.ts`. The `HealthBar` displays the perk-adjusted damage rate.
+
 ### Incremental Cost Consumption
 Actions with item costs (e.g., Wooden Cart needs 10 wood) consume resources **one at a time** as progress advances, not all at once on completion. Each unit funds a fraction of the total progress (`expCost / totalUnits`). If resources run out mid-build, the action stalls — progress and consumed costs are saved to `stalledActionProgress` on `GameState` and restored when the action is re-queued (manually or via automation). This is tracked via `costsConsumed` on `QueuedAction`.
 

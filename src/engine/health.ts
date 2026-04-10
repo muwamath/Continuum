@@ -1,4 +1,4 @@
-import type { GameState, ItemId } from './types'
+import type { GameState, ItemId, PerkState } from './types'
 import { itemDefinitions } from '../data/itemDefinitions'
 import { removeItem } from './inventory'
 
@@ -8,6 +8,23 @@ export const DECAY_GROWTH_RATE = 1.25
 export const REBIRTH_GROWTH_FACTOR = 0.01
 export const DEFAULT_FOOD_COOLDOWN_TICKS = 50
 export const TICKS_PER_MINUTE = 600
+
+// Perk tuning constants — see PerkState in types.ts
+export const PERK_INCREMENT = 0.005 // 0.5% per level
+export const PERK_DECAY_CAP = 0.5 // ironStomach: max -50% decay
+export const PERK_THRESHOLD_CAP = 0.5 // quickLearner: max -50% threshold
+
+/** Multiplier applied to damage from the ironStomach perk (1.0 → no reduction). */
+export function getIronStomachMultiplier(perks: PerkState | undefined): number {
+  if (!perks) return 1.0
+  return 1 - Math.min(PERK_DECAY_CAP, PERK_INCREMENT * perks.ironStomach)
+}
+
+/** Multiplier applied to food healing from the heartyMeals perk (1.0 → no boost). */
+export function getHeartyMealsMultiplier(perks: PerkState | undefined): number {
+  if (!perks) return 1.0
+  return 1 + PERK_INCREMENT * perks.heartyMeals
+}
 
 export function getMaxHealth(rebirthHealthBonus: number): number {
   return BASE_HEALTH + rebirthHealthBonus
@@ -49,13 +66,15 @@ export function processAutoEat(state: GameState): GameState {
   let healthCurrent = state.health.current
   let inventory = state.inventory
   let cooldowns = { ...state.foodCooldowns }
+  const healMultiplier = getHeartyMealsMultiplier(state.perks)
 
   for (const def of Object.values(itemDefinitions)) {
     if (def.category !== 'food' || !def.healAmount) continue
     if (inventory[def.id].count <= 0) continue
-    if (!canAutoEat(healthCurrent, state.health.max, def.healAmount, cooldowns[def.id])) continue
+    const effectiveHeal = def.healAmount * healMultiplier
+    if (!canAutoEat(healthCurrent, state.health.max, effectiveHeal, cooldowns[def.id])) continue
 
-    healthCurrent = applyHealing(healthCurrent, state.health.max, def.healAmount)
+    healthCurrent = applyHealing(healthCurrent, state.health.max, effectiveHeal)
     inventory = removeItem(inventory, def.id, 1)
     cooldowns[def.id] = def.cooldownTicks ?? DEFAULT_FOOD_COOLDOWN_TICKS
   }
@@ -87,7 +106,8 @@ export function performRebirth(state: GameState): GameState {
 
   const skills = {} as typeof state.skills
   for (const [id, skill] of Object.entries(state.skills)) {
-    skills[id as keyof typeof state.skills] = {
+    const sid = id as keyof typeof state.skills
+    skills[sid] = {
       ...skill,
       runMastery: { level: 0, currentExp: 0 },
     }
@@ -122,5 +142,8 @@ export function performRebirth(state: GameState): GameState {
     automationSettings: state.automationSettings,
     asNeededActions: state.asNeededActions,
     stalledActionProgress: {},
+    // Skill points and perks persist across rebirths
+    skillPoints: state.skillPoints,
+    perks: state.perks,
   }
 }

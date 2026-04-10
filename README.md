@@ -43,6 +43,7 @@ Open the URL shown in the terminal (usually `http://localhost:5173/Continuum/`).
   - **1–5**: passive priority (1 runs first). One action fills the queue when it empties.
   - **AN** (As Needed): reactive — only runs when something needs it. Material producers fire when a downstream action stalls on a missing material; food producers fire when the food count hits 0 and run until full.
 - When you die, rebirth grants a permanent health bonus based on how long you survived. Scenes and inventory reset; completion counts and automation settings persist.
+- Surviving **15 minutes in a single run** earns **1 skill point**. Spend skill points on the death screen to permanently unlock perks: **Iron Stomach** (less health decay), **Quick Learner** (lower automation thresholds), and **Hearty Meals** (more food healing). Skill points and perks both carry across rebirths.
 
 ## Scripts
 

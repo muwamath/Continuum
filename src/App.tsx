@@ -41,7 +41,7 @@ function App() {
     <>
       <GameLayout
         skills={<SkillBar skills={state.skills} />}
-        health={<HealthBar health={state.health} runTickCount={state.runTickCount} healthDecayMultiplier={state.healthDecayMultiplier} />}
+        health={<HealthBar health={state.health} runTickCount={state.runTickCount} healthDecayMultiplier={state.healthDecayMultiplier} perks={state.perks} />}
         inventory={<InventoryPanel inventory={state.inventory} />}
         actions={<ActionPanel state={state} dispatch={dispatch} />}
         queue={<QueuePanel state={state} dispatch={dispatch} />}
@@ -56,7 +56,9 @@ function App() {
         <DeathScreen
           pendingRebirthBonus={state.pendingRebirthBonus}
           rebirth={state.rebirth}
-          onContinue={() => dispatch({ type: 'CONTINUE_REBIRTH' })}
+          skillPoints={state.skillPoints}
+          perks={state.perks}
+          onContinue={(allocations) => dispatch({ type: 'CONTINUE_REBIRTH', allocations })}
         />
       )}
     </>
