@@ -61,16 +61,13 @@
 }
 
 .action-button__gear-tooltip {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  right: 0;
   background: var(--bg-panel);
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 0.3rem 0.5rem;
   font-size: 0.75rem;
   white-space: nowrap;
-  z-index: 20;
+  z-index: 9999;
   pointer-events: none;
 }
 

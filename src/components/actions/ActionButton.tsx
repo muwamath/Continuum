@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import type { ActionDefinition, SkillState } from '../../engine/types'
 import type { SkillDefinition } from '../../data/skillDefinitions'
 import { skillDefinitions } from '../../data/skillDefinitions'
@@ -33,6 +33,8 @@ export function ActionButton({
   const [showTooltip, setShowTooltip] = useState(false)
   const [showGearTooltip, setShowGearTooltip] = useState(false)
   const [popKey, setPopKey] = useState(0)
+  const buttonRef = useRef<HTMLDivElement>(null)
+  const gearRef = useRef<HTMLDivElement>(null)
   const skillDef: SkillDefinition = skillDefinitions[action.requiredSkill]
 
   function handleAutomationClick() {
@@ -40,9 +42,22 @@ export function ActionButton({
     onToggleAutomation()
   }
 
+  function getTooltipPos() {
+    if (!buttonRef.current) return { top: 0, left: 0 }
+    const rect = buttonRef.current.getBoundingClientRect()
+    return { top: rect.top, left: rect.left }
+  }
+
+  function getGearTooltipPos() {
+    if (!gearRef.current) return { top: 0, right: 0 }
+    const rect = gearRef.current.getBoundingClientRect()
+    return { top: rect.top, right: window.innerWidth - rect.right }
+  }
+
   return (
     <div
       className="action-button"
+      ref={buttonRef}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
@@ -76,12 +91,21 @@ export function ActionButton({
       {!isAutomationUnlocked ? (
         <div
           className="action-button__gear-wrapper"
+          ref={gearRef}
           onMouseEnter={() => setShowGearTooltip(true)}
           onMouseLeave={() => setShowGearTooltip(false)}
         >
           <Icon name="big-gear" size={18} alt="Automation progress" />
           {showGearTooltip && (
-            <div className="action-button__gear-tooltip">
+            <div
+              className="action-button__gear-tooltip"
+              style={{
+                position: 'fixed',
+                top: `${getGearTooltipPos().top - 6}px`,
+                right: `${getGearTooltipPos().right}px`,
+                transform: 'translateY(-100%)',
+              }}
+            >
               {completionCount} / {automationThreshold} completions
             </div>
           )}
@@ -98,7 +122,17 @@ export function ActionButton({
         </button>
       )}
       {showTooltip && (
-        <ActionTooltip action={action} skillDef={skillDef} skillState={skillState} />
+        <div
+          style={{
+            position: 'fixed',
+            top: `${getTooltipPos().top - 8}px`,
+            left: `${getTooltipPos().left}px`,
+            transform: 'translateY(-100%)',
+            zIndex: 9999,
+          }}
+        >
+          <ActionTooltip action={action} skillDef={skillDef} skillState={skillState} />
+        </div>
       )}
     </div>
   )
