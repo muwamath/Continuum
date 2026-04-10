@@ -19,15 +19,31 @@ import {
   calculateRebirthBonus,
   processAutoEat,
   tickCooldowns,
+  getIronStomachMultiplier,
+  TICKS_PER_MINUTE,
 } from './health'
-import { getAutomatedActions } from './automation'
+import { getAutomatedActions, getFoodAsNeededRefill, getFoodAsNeededTopUp } from './automation'
+
+const TICKS_PER_SKILL_POINT = TICKS_PER_MINUTE * 15 // 1 point per 15 minutes of run time
 
 function tryFillAutomationQueue(state: GameState): GameState {
+  // 1. Urgent: any food at 0 with an AN producer.
+  const foodRefill = getFoodAsNeededRefill(state)
+  if (foodRefill) {
+    return { ...state, queue: [foodRefill] }
+  }
+  // 2. Passive automation (priorities 1–5).
   const scene = sceneDefinitions[state.currentSceneId]
-  if (!scene) return { ...state, isPaused: true }
-  const automated = getAutomatedActions(state, scene.actionIds, state.stalledActionProgress)
-  if (automated.length > 0) {
-    return { ...state, queue: automated.slice(0, 1) }
+  if (scene) {
+    const automated = getAutomatedActions(state, scene.actionIds, state.stalledActionProgress)
+    if (automated.length > 0) {
+      return { ...state, queue: automated.slice(0, 1) }
+    }
+  }
+  // 3. Fallback: top off any AN food that's below max capacity.
+  const topUp = getFoodAsNeededTopUp(state)
+  if (topUp) {
+    return { ...state, queue: [topUp] }
   }
   return { ...state, isPaused: true }
 }
@@ -140,15 +156,25 @@ export function processTick(state: GameState): GameState {
     return stalledState
   }
 
-  // Health: apply damage, auto-eat, death check
-  const newHealthCurrent = applyTickDamage(state.health.current, state.runTickCount, state.healthDecayMultiplier)
+  // Health: apply damage (with ironStomach perk applied), auto-eat, death check
+  const effectiveDecayMultiplier = state.healthDecayMultiplier * getIronStomachMultiplier(state.perks)
+  const newHealthCurrent = applyTickDamage(state.health.current, state.runTickCount, effectiveDecayMultiplier)
   const newCooldowns = tickCooldowns(state.foodCooldowns)
+
+  const newRunTickCount = state.runTickCount + 1
+
+  // Skill points: award 1 each time we cross a TICKS_PER_SKILL_POINT boundary in this run
+  let nextSkillPoints = state.skillPoints
+  if (Math.floor(newRunTickCount / TICKS_PER_SKILL_POINT) > Math.floor(state.runTickCount / TICKS_PER_SKILL_POINT)) {
+    nextSkillPoints = state.skillPoints + 1
+  }
 
   let healthState: GameState = {
     ...state,
     health: { ...state.health, current: newHealthCurrent },
     foodCooldowns: newCooldowns,
-    runTickCount: state.runTickCount + 1,
+    runTickCount: newRunTickCount,
+    skillPoints: nextSkillPoints,
   }
 
   // Auto-eat before death check

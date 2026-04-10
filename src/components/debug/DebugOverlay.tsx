@@ -362,6 +362,62 @@ export function DebugOverlay({ state, dispatch }: DebugOverlayProps) {
             Kill Player
           </button>
 
+          <h3>Skill Points & Perks</h3>
+          <div className="debug-skill__fields">
+            <label>
+              Skill Points
+              <input
+                type="number"
+                value={editState.skillPoints}
+                onChange={(e) =>
+                  setEditState({
+                    ...editState,
+                    skillPoints: Math.max(0, Number(e.target.value)),
+                  })
+                }
+              />
+            </label>
+            <label>
+              Iron Stomach Lv
+              <input
+                type="number"
+                value={editState.perks.ironStomach}
+                onChange={(e) =>
+                  setEditState({
+                    ...editState,
+                    perks: { ...editState.perks, ironStomach: Math.max(0, Number(e.target.value)) },
+                  })
+                }
+              />
+            </label>
+            <label>
+              Quick Learner Lv
+              <input
+                type="number"
+                value={editState.perks.quickLearner}
+                onChange={(e) =>
+                  setEditState({
+                    ...editState,
+                    perks: { ...editState.perks, quickLearner: Math.max(0, Number(e.target.value)) },
+                  })
+                }
+              />
+            </label>
+            <label>
+              Hearty Meals Lv
+              <input
+                type="number"
+                value={editState.perks.heartyMeals}
+                onChange={(e) =>
+                  setEditState({
+                    ...editState,
+                    perks: { ...editState.perks, heartyMeals: Math.max(0, Number(e.target.value)) },
+                  })
+                }
+              />
+            </label>
+          </div>
+
           <h3>Automation</h3>
           <div className="debug-automation">
             {actionDefinitions.map((a) => {

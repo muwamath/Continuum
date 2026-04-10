@@ -40,5 +40,7 @@ export function createInitialState(): GameState {
     automationSettings: {},
     asNeededActions: {},
     stalledActionProgress: {},
+    skillPoints: 0,
+    perks: { ironStomach: 0, quickLearner: 0, heartyMeals: 0 },
   }
 }

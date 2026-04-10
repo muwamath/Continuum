@@ -1,5 +1,5 @@
-import type { HealthState } from '../../engine/types'
-import { getDamagePerTick } from '../../engine/health'
+import type { HealthState, PerkState } from '../../engine/types'
+import { getDamagePerTick, getIronStomachMultiplier } from '../../engine/health'
 import { ProgressBar } from '../ui/ProgressBar'
 import { Icon } from '../ui/Icon'
 import './HealthBar.css'
@@ -8,6 +8,7 @@ interface HealthBarProps {
   health: HealthState
   runTickCount: number
   healthDecayMultiplier: number
+  perks: PerkState
 }
 
 function getHealthColor(ratio: number): string {
@@ -23,9 +24,10 @@ function formatRunTime(ticks: number): string {
   return `${m}m ${s.toString().padStart(2, '0')}s`
 }
 
-export function HealthBar({ health, runTickCount, healthDecayMultiplier }: HealthBarProps) {
+export function HealthBar({ health, runTickCount, healthDecayMultiplier, perks }: HealthBarProps) {
   const ratio = health.max > 0 ? health.current / health.max : 0
-  const damagePerTick = getDamagePerTick(runTickCount, healthDecayMultiplier)
+  const effectiveDecayMultiplier = healthDecayMultiplier * getIronStomachMultiplier(perks)
+  const damagePerTick = getDamagePerTick(runTickCount, effectiveDecayMultiplier)
 
   return (
     <div className="health-bar">

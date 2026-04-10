@@ -1,11 +1,29 @@
 import { useReducer } from 'react'
-import type { GameState, QueuedAction } from '../engine/types'
+import type { GameState, QueuedAction, PerkState } from '../engine/types'
 import { createInitialState } from '../engine/gameState'
 import { processTick } from '../engine/tick'
 import { enqueueFront, enqueueBack, stalledRemoval } from '../engine/queue'
 import { performRebirth } from '../engine/health'
-import { getAutomatedActions } from '../engine/automation'
+import { getAutomatedActions, getFoodAsNeededRefill, getFoodAsNeededTopUp } from '../engine/automation'
 import { sceneDefinitions } from '../data/sceneDefinitions'
+
+/**
+ * Pick the next action to run when the queue is empty. Priority order:
+ *   1. Food at 0 with AN producer (urgent refill)
+ *   2. Highest passive automation priority
+ *   3. Food below max with AN producer (top-up fallback when nothing else applies)
+ * Returns null if there's nothing to do.
+ */
+function pickNextQueueAction(state: GameState): QueuedAction | null {
+  const refill = getFoodAsNeededRefill(state)
+  if (refill) return refill
+  const scene = sceneDefinitions[state.currentSceneId]
+  if (scene) {
+    const automated = getAutomatedActions(state, scene.actionIds, state.stalledActionProgress)
+    if (automated.length > 0) return automated[0]
+  }
+  return getFoodAsNeededTopUp(state)
+}
 
 export type GameAction =
   | { type: 'TICK' }
@@ -16,7 +34,7 @@ export type GameAction =
   | { type: 'AUTO_FILL_QUEUE' }
   | { type: 'SET_DEBUG_STATE'; state: Partial<GameState> }
   | { type: 'RESTART' }
-  | { type: 'CONTINUE_REBIRTH' }
+  | { type: 'CONTINUE_REBIRTH'; allocations?: PerkState }
   | { type: 'SET_AUTOMATION_PRIORITY'; actionId: string; priority: number | 'AN' }
 
 function gameReducer(state: GameState, action: GameAction): GameState {
@@ -56,13 +74,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'TOGGLE_PAUSE': {
       if (state.isDead) return state
-      // Unpausing with empty queue: try automation first; stay paused if it produces nothing
+      // Unpausing with empty queue: pick the next thing to do; stay paused if nothing applies
       if (state.isPaused && state.queue.length === 0) {
-        const scene = sceneDefinitions[state.currentSceneId]
-        if (!scene) return state
-        const automated = getAutomatedActions(state, scene.actionIds, state.stalledActionProgress)
-        if (automated.length === 0) return state
-        return { ...state, queue: automated.slice(0, 1), isPaused: false, pausedByUser: false }
+        const action = pickNextQueueAction(state)
+        if (!action) return state
+        return { ...state, queue: [action], isPaused: false, pausedByUser: false }
       }
       const willPause = !state.isPaused
       return {
@@ -75,11 +91,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case 'AUTO_FILL_QUEUE': {
       // Automatic background fill — does NOT override an explicit user pause.
       if (state.isDead || state.queue.length > 0 || state.pausedByUser) return state
-      const scene = sceneDefinitions[state.currentSceneId]
-      if (!scene) return state
-      const automated = getAutomatedActions(state, scene.actionIds, state.stalledActionProgress)
-      if (automated.length === 0) return state
-      return { ...state, queue: automated.slice(0, 1), isPaused: false }
+      const action = pickNextQueueAction(state)
+      if (!action) return state
+      return { ...state, queue: [action], isPaused: false }
     }
 
     case 'REMOVE_FROM_QUEUE': {
@@ -95,13 +109,37 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, ...action.state }
 
     case 'CONTINUE_REBIRTH': {
-      const reborn = performRebirth(state)
-      const scene = sceneDefinitions[reborn.currentSceneId]
-      if (scene) {
-        const automated = getAutomatedActions(reborn, scene.actionIds, reborn.stalledActionProgress)
-        if (automated.length > 0) {
-          return { ...reborn, queue: automated.slice(0, 1), isPaused: false }
+      // Apply perk allocations from the death screen (clamped to available points)
+      let working = state
+      if (action.allocations) {
+        const requested =
+          (action.allocations.ironStomach ?? 0) +
+          (action.allocations.quickLearner ?? 0) +
+          (action.allocations.heartyMeals ?? 0)
+        const available = working.skillPoints
+        if (requested > 0 && available > 0) {
+          // If they asked for more than available, scale proportionally to never overspend
+          const spendable = Math.min(requested, available)
+          const scale = spendable / requested
+          const ironStomachAdd = Math.floor((action.allocations.ironStomach ?? 0) * scale)
+          const quickLearnerAdd = Math.floor((action.allocations.quickLearner ?? 0) * scale)
+          const heartyMealsAdd = Math.floor((action.allocations.heartyMeals ?? 0) * scale)
+          const totalSpent = ironStomachAdd + quickLearnerAdd + heartyMealsAdd
+          working = {
+            ...working,
+            skillPoints: working.skillPoints - totalSpent,
+            perks: {
+              ironStomach: working.perks.ironStomach + ironStomachAdd,
+              quickLearner: working.perks.quickLearner + quickLearnerAdd,
+              heartyMeals: working.perks.heartyMeals + heartyMealsAdd,
+            },
+          }
         }
+      }
+      const reborn = performRebirth(working)
+      const next = pickNextQueueAction(reborn)
+      if (next) {
+        return { ...reborn, queue: [next], isPaused: false }
       }
       return reborn
     }
@@ -121,12 +159,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       }
       const newState = { ...state, automationSettings: newSettings, asNeededActions: newAsNeeded }
       if (newState.queue.length === 0 && !newState.isDead && !newState.pausedByUser) {
-        const scene = sceneDefinitions[newState.currentSceneId]
-        if (scene) {
-          const automated = getAutomatedActions(newState, scene.actionIds, newState.stalledActionProgress)
-          if (automated.length > 0) {
-            return { ...newState, queue: automated.slice(0, 1), isPaused: false }
-          }
+        const next = pickNextQueueAction(newState)
+        if (next) {
+          return { ...newState, queue: [next], isPaused: false }
         }
       }
       return newState

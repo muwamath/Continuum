@@ -5,7 +5,7 @@ import { actionDefinitionMap } from '../../data/actionDefinitions'
 import { sceneDefinitions } from '../../data/sceneDefinitions'
 import { createQueuedAction } from '../../engine/queue'
 import {
-  getAutomationThreshold,
+  getEffectiveAutomationThreshold,
   isAutomationUnlocked,
   cycleAutomationMode,
   getAutomationMode,
@@ -31,8 +31,8 @@ function renderActionButton(
   dispatch: Dispatch<GameAction>,
 ) {
   const completionCount = state.actionCompletionCounts[a.id] ?? 0
-  const threshold = getAutomationThreshold(a)
-  const unlocked = isAutomationUnlocked(a, state.actionCompletionCounts)
+  const threshold = getEffectiveAutomationThreshold(a, state.perks)
+  const unlocked = isAutomationUnlocked(a, state.actionCompletionCounts, state.perks)
   const mode = getAutomationMode(state, a.id)
 
   return (

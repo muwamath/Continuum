@@ -4,7 +4,7 @@ import type { GameState } from '../engine/types'
 import type { GameAction } from './useGameState'
 
 const SAVE_KEY = 'continuum-save'
-const SAVE_VERSION = 5
+const SAVE_VERSION = 7
 const AUTO_SAVE_INTERVAL_MS = 30_000
 
 interface SaveData {
@@ -45,6 +45,27 @@ function migrateState(data: SaveData): SaveData {
   if (data.version === 4) {
     data.state.asNeededActions = {}
     data.version = 5
+  }
+  if (data.version === 5) {
+    // Legacy per-skill shape; the v6 → v7 migration below will convert it to a single number.
+    ;(data.state as { skillPoints: unknown }).skillPoints = {
+      harvest: 0,
+      logging: 0,
+      construction: 0,
+      agility: 0,
+    }
+    data.version = 6
+  }
+  if (data.version === 6) {
+    // Skill points are now a single global pool. Sum any per-skill points from v6 saves.
+    const old = data.state.skillPoints as unknown as Record<string, number> | number
+    if (typeof old === 'object' && old !== null) {
+      data.state.skillPoints = Object.values(old).reduce((a, b) => a + b, 0)
+    } else if (typeof old !== 'number') {
+      data.state.skillPoints = 0
+    }
+    data.state.perks = { ironStomach: 0, quickLearner: 0, heartyMeals: 0 }
+    data.version = 7
   }
   return data
 }
