@@ -1,7 +1,8 @@
-import type { GameState } from './types'
-import { actionDefinitions } from '../data/actionDefinitions'
+import type { GameState, ItemId } from './types'
+import { actionDefinitionMap } from '../data/actionDefinitions'
 import { skillDefinitions } from '../data/skillDefinitions'
 import { sceneDefinitions } from '../data/sceneDefinitions'
+import { itemDefinitions } from '../data/itemDefinitions'
 import { addExp, getTotalMultiplierWithDefs } from './skills'
 import {
   canActionProceed,
@@ -37,7 +38,7 @@ export function processTick(state: GameState): GameState {
 
   // Validate front action BEFORE applying damage or progressing time
   const current = state.queue[0]
-  const actionDef = actionDefinitions.find((a) => a.id === current.actionId)
+  const actionDef = actionDefinitionMap.get(current.actionId)
   if (!actionDef) {
     return {
       ...state,
@@ -209,13 +210,16 @@ export function processTick(state: GameState): GameState {
     newState = tryFillAutomationQueue(newState)
   }
 
-  // Food depletion trigger: if berries hit 0, try automation refill
-  if (
-    newState.queue.length > 0 &&
-    newState.inventory.berry.count === 0 &&
-    state.inventory.berry.count > 0
-  ) {
-    newState = tryFillAutomationQueue(newState)
+  // Food depletion trigger: if any food item hit 0 this tick, try automation refill
+  if (newState.queue.length > 0) {
+    const foodDepleted = Object.values(itemDefinitions).some(
+      (def) => def.category === 'food' &&
+        newState.inventory[def.id as ItemId].count === 0 &&
+        state.inventory[def.id as ItemId].count > 0,
+    )
+    if (foodDepleted) {
+      newState = tryFillAutomationQueue(newState)
+    }
   }
 
   return newState

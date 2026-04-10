@@ -8,12 +8,18 @@
 
 ## Architecture
 - `src/engine/` — Pure game logic. No React imports. All functions are pure (state in, state out).
-- `src/data/` — Static game definitions (skills, actions, items). Treat as read-only config.
+- `src/data/` — Static game definitions (skills, actions, items, scenes). Treat as read-only config. `actionDefinitionMap` provides O(1) lookups by action ID.
 - `src/hooks/` — React hooks that bridge the engine to the UI.
 - `src/components/` — Functional React components only. No class components.
 - `public/icons/` — SVG icons from game-icons.net.
 
 ## Key Design Decisions
+
+### Scenes & Acts
+The game is organized into Acts containing Scenes. Each scene defines which actions are available via `actionIds`. Actions can appear in multiple scenes. Completing an action with `leadsToScene` transitions the player to a new scene and clears the queue. Scene state persists across rebirths.
+
+### Automation
+Actions track global completion counts (`actionCompletionCounts`). After reaching a threshold (200 for repeatable, 5 for one-time), automation unlocks. Players set priority 1–5 (1 runs first). When the queue empties or food depletes, automated actions fill the queue sorted by priority, then scene order. Logic lives in `src/engine/automation.ts`.
 
 ### Incremental Cost Consumption
 Actions with item costs (e.g., Wooden Cart needs 10 wood) consume resources **one at a time** as progress advances, not all at once on completion. Each unit funds a fraction of the total progress (`expCost / totalUnits`). If resources run out mid-build, the action stalls and is removed. Canceling forfeits consumed resources. This is tracked via `costsConsumed` on `QueuedAction`.
@@ -32,6 +38,7 @@ Actions with item costs (e.g., Wooden Cart needs 10 wood) consume resources **on
 ## Testing
 - Engine logic: unit tests with Vitest (`src/engine/__tests__/`)
 - Run tests: `npm test` (single run) or `npm run test:watch` (watch mode)
+- Type check: `tsc -p tsconfig.app.json` (not root tsconfig)
 
 ## Workflow
 - All new work goes in a **feature branch**
@@ -40,19 +47,25 @@ Actions with item costs (e.g., Wooden Cart needs 10 wood) consume resources **on
 - Never commit directly to `main`
 
 ## Versioning
-- Version is `package.json` version + short git commit hash (e.g., `v0.2.0-a71e3ac`)
-- Displayed in the bottom-right corner of the game
+- Version is `package.json` version + short git commit hash + build timestamp (e.g., `v0.2.0 · a71e3ac · 5:30:00 PM`)
+- Displayed in the footer bar at the bottom of the game
+- Build timestamp updates when Vite restarts, useful for confirming fresh code during development
 - Bump `package.json` version for significant changes
 
 ## Layout
 - Fully responsive, fills the entire viewport
-- CSS Grid layout with four panels: top (skills), center (inventory), bottom (actions), right (queue)
+- CSS Grid layout with 3-column body: Actions (left), Inventory (center), Queue (right)
+- Health bar and skills span the full width above
+- Footer bar at the bottom contains debug button and version label
 - Dark theme by default
 - Skill and action panels use `overflow: visible` with `z-index` so tooltips aren't clipped
+- Tooltips use `position: fixed` with `z-index: 9999` to escape stacking contexts
+- Actions grouped by category (Gathering, Construction, Exploration)
+- Inventory grouped by category (Provisions, Materials)
 
 ## Debug Overlay
 - Only available on `localhost` (checked via `window.location.hostname`)
-- Opened via a "Debug" button in the bottom-right
+- Opened via a "Debug" button in the footer bar
 - Closed with Escape key or close button
 - Includes "Restart Game" to clear all progress and localStorage
 

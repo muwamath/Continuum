@@ -4,6 +4,8 @@ export const actionDefinitions: ActionDefinition[] = [
   {
     id: 'harvest-berries',
     name: 'Harvest Berries',
+    description: 'Harvest a single Berry, which provides +5 HP. Eat up!',
+    category: 'gathering',
     requiredSkill: 'harvest',
     expCost: 2,
     producedItem: 'berry',
@@ -14,6 +16,8 @@ export const actionDefinitions: ActionDefinition[] = [
   {
     id: 'cut-wood',
     name: 'Cut Wood',
+    description: 'Chop a log into usable Wood. Essential for building.',
+    category: 'gathering',
     requiredSkill: 'logging',
     expCost: 5,
     producedItem: 'wood',
@@ -24,6 +28,8 @@ export const actionDefinitions: ActionDefinition[] = [
   {
     id: 'wooden-cart',
     name: 'Wooden Cart',
+    description: 'Build a cart to haul more goods. Increases all inventory capacity by 5.',
+    category: 'construction',
     requiredSkill: 'construction',
     expCost: 20,
     itemCosts: [{ itemId: 'wood', amount: 10 }],
@@ -33,6 +39,8 @@ export const actionDefinitions: ActionDefinition[] = [
   {
     id: 'wooden-hut',
     name: 'Wooden Hut',
+    description: 'Construct a shelter from the elements. Halves your health decay rate.',
+    category: 'construction',
     requiredSkill: 'construction',
     expCost: 30,
     itemCosts: [{ itemId: 'wood', amount: 20 }],
@@ -43,6 +51,8 @@ export const actionDefinitions: ActionDefinition[] = [
   {
     id: 'explore-the-area',
     name: 'Explore the Area',
+    description: 'Scout the surroundings and discover what lies beyond the clearing.',
+    category: 'exploration',
     requiredSkill: 'agility',
     expCost: 20,
     isOneTime: true,
@@ -52,6 +62,8 @@ export const actionDefinitions: ActionDefinition[] = [
   {
     id: 'climb-the-mountain',
     name: 'Climb the Mountain',
+    description: 'Scale the towering peak. A grueling ascent back to where it all began.',
+    category: 'exploration',
     requiredSkill: 'agility',
     expCost: 4_000_000,
     isOneTime: true,
@@ -59,3 +71,5 @@ export const actionDefinitions: ActionDefinition[] = [
     leadsToScene: 'act1-scene1',
   },
 ]
+
+export const actionDefinitionMap = new Map(actionDefinitions.map((a) => [a.id, a]))

@@ -1,5 +1,5 @@
 import type { ActionDefinition, GameState, QueuedAction } from './types'
-import { actionDefinitions } from '../data/actionDefinitions'
+import { actionDefinitionMap } from '../data/actionDefinitions'
 import { createQueuedAction } from './queue'
 
 export function getAutomationThreshold(actionDef: ActionDefinition): number {
@@ -7,11 +7,10 @@ export function getAutomationThreshold(actionDef: ActionDefinition): number {
 }
 
 export function isAutomationUnlocked(
-  actionId: string,
-  completionCounts: Record<string, number>,
   actionDef: ActionDefinition,
+  completionCounts: Record<string, number>,
 ): boolean {
-  const count = completionCounts[actionId] ?? 0
+  const count = completionCounts[actionDef.id] ?? 0
   return count >= getAutomationThreshold(actionDef)
 }
 
@@ -24,14 +23,12 @@ export function getAutomatedActions(
   state: GameState,
   sceneActionIds: string[],
 ): QueuedAction[] {
-  const actionMap = new Map(actionDefinitions.map((a) => [a.id, a]))
-
   const candidates = sceneActionIds
     .map((id, index) => ({
       id,
       index,
       priority: state.automationSettings[id] ?? 0,
-      def: actionMap.get(id),
+      def: actionDefinitionMap.get(id),
     }))
     .filter((c) => {
       if (!c.def) return false
@@ -40,7 +37,6 @@ export function getAutomatedActions(
       return true
     })
 
-  // Sort by priority ascending (1 first), then by scene order
   candidates.sort((a, b) => {
     if (a.priority !== b.priority) return a.priority - b.priority
     return a.index - b.index

@@ -1,4 +1,5 @@
-const APP_VERSION = `${__APP_VERSION__}-${__COMMIT_HASH__}`
+const buildTime = new Date(__BUILD_TIME__).toLocaleTimeString()
+const APP_VERSION = `${__APP_VERSION__} · ${__COMMIT_HASH__} · ${buildTime}`
 
 import { useGameState } from './hooks/useGameState'
 import { useGameLoop } from './hooks/useGameLoop'

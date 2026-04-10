@@ -22,9 +22,13 @@ export interface ItemCost {
   amount: number
 }
 
+export type ActionCategory = 'gathering' | 'construction' | 'exploration'
+
 export interface ActionDefinition {
   id: string
   name: string
+  description: string
+  category: ActionCategory
   requiredSkill: SkillId
   expCost: number
   producedItem?: ItemId

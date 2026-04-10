@@ -6,6 +6,8 @@ import type { ActionDefinition } from '../types'
 const repeatableAction: ActionDefinition = {
   id: 'test-repeatable',
   name: 'Test Repeatable',
+  description: 'A test repeatable action',
+  category: 'gathering',
   requiredSkill: 'harvest',
   expCost: 10,
   isOneTime: false,
@@ -15,6 +17,8 @@ const repeatableAction: ActionDefinition = {
 const oneTimeAction: ActionDefinition = {
   id: 'test-onetime',
   name: 'Test One Time',
+  description: 'A test one-time action',
+  category: 'gathering',
   requiredSkill: 'harvest',
   expCost: 10,
   isOneTime: true,
@@ -33,19 +37,19 @@ describe('getAutomationThreshold', () => {
 
 describe('isAutomationUnlocked', () => {
   it('returns false when count is below threshold', () => {
-    expect(isAutomationUnlocked('test-repeatable', { 'test-repeatable': 199 }, repeatableAction)).toBe(false)
+    expect(isAutomationUnlocked(repeatableAction, { 'test-repeatable': 199 })).toBe(false)
   })
 
   it('returns true when count equals threshold', () => {
-    expect(isAutomationUnlocked('test-repeatable', { 'test-repeatable': 200 }, repeatableAction)).toBe(true)
+    expect(isAutomationUnlocked(repeatableAction, { 'test-repeatable': 200 })).toBe(true)
   })
 
   it('returns true when count exceeds threshold', () => {
-    expect(isAutomationUnlocked('test-onetime', { 'test-onetime': 10 }, oneTimeAction)).toBe(true)
+    expect(isAutomationUnlocked(oneTimeAction, { 'test-onetime': 10 })).toBe(true)
   })
 
   it('returns false when action has no completions', () => {
-    expect(isAutomationUnlocked('test-repeatable', {}, repeatableAction)).toBe(false)
+    expect(isAutomationUnlocked(repeatableAction, {})).toBe(false)
   })
 })
 

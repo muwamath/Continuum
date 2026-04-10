@@ -1,5 +1,5 @@
 import type { QueuedAction, SkillId, SkillState } from '../../engine/types'
-import { actionDefinitions } from '../../data/actionDefinitions'
+import { actionDefinitionMap } from '../../data/actionDefinitions'
 import { skillDefinitions } from '../../data/skillDefinitions'
 import { getTotalMultiplierWithDefs } from '../../engine/skills'
 import { Icon } from '../ui/Icon'
@@ -26,7 +26,7 @@ function formatEta(seconds: number): string {
 }
 
 export function QueueItem({ item, isActive, skills, onCancel }: QueueItemProps) {
-  const actionDef = actionDefinitions.find((a) => a.id === item.actionId)
+  const actionDef = actionDefinitionMap.get(item.actionId)
   if (!actionDef) return null
 
   const skillDef = skillDefinitions[actionDef.requiredSkill]

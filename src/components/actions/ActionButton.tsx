@@ -19,6 +19,18 @@ interface ActionButtonProps {
   onToggleAutomation: () => void
 }
 
+function getFixedBelow(el: HTMLElement | null) {
+  if (!el) return { top: 0, left: 0 }
+  const rect = el.getBoundingClientRect()
+  return { top: rect.bottom + 4, left: rect.left }
+}
+
+function getFixedAbove(el: HTMLElement | null) {
+  if (!el) return { top: 0, right: 0 }
+  const rect = el.getBoundingClientRect()
+  return { top: rect.top - 4, right: window.innerWidth - rect.right }
+}
+
 export function ActionButton({
   action,
   skillState,
@@ -42,17 +54,8 @@ export function ActionButton({
     onToggleAutomation()
   }
 
-  function getTooltipPos() {
-    if (!buttonRef.current) return { top: 0, left: 0 }
-    const rect = buttonRef.current.getBoundingClientRect()
-    return { top: rect.top, left: rect.left }
-  }
-
-  function getGearTooltipPos() {
-    if (!gearRef.current) return { top: 0, right: 0 }
-    const rect = gearRef.current.getBoundingClientRect()
-    return { top: rect.top, right: window.innerWidth - rect.right }
-  }
+  const tooltipPos = showTooltip ? getFixedBelow(buttonRef.current) : null
+  const gearPos = showGearTooltip ? getFixedAbove(gearRef.current) : null
 
   return (
     <div
@@ -96,14 +99,15 @@ export function ActionButton({
           onMouseLeave={() => setShowGearTooltip(false)}
         >
           <Icon name="big-gear" size={18} alt="Automation progress" />
-          {showGearTooltip && (
+          {gearPos && (
             <div
               className="action-button__gear-tooltip"
               style={{
                 position: 'fixed',
-                top: `${getGearTooltipPos().top - 6}px`,
-                right: `${getGearTooltipPos().right}px`,
+                top: `${gearPos.top}px`,
+                right: `${gearPos.right}px`,
                 transform: 'translateY(-100%)',
+                zIndex: 9999,
               }}
             >
               {completionCount} / {automationThreshold} completions
@@ -121,13 +125,12 @@ export function ActionButton({
           {automationPriority === 0 ? 'Off' : automationPriority}
         </button>
       )}
-      {showTooltip && (
+      {tooltipPos && (
         <div
           style={{
             position: 'fixed',
-            top: `${getTooltipPos().top - 8}px`,
-            left: `${getTooltipPos().left}px`,
-            transform: 'translateY(-100%)',
+            top: `${tooltipPos.top}px`,
+            left: `${tooltipPos.left}px`,
             zIndex: 9999,
           }}
         >

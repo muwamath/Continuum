@@ -36,24 +36,29 @@ export function ActionTooltip({ action, skillDef, skillState }: ActionTooltipPro
 
   return (
     <div className="action-tooltip">
-      <div className="action-tooltip__row">
-        <span className="action-tooltip__label">Exp cost</span>
-        <span>{action.expCost}</span>
-      </div>
-      <div className="action-tooltip__row">
-        <span className="action-tooltip__label">Exp/tick</span>
-        <span>{expPerTick.toFixed(3)}</span>
-      </div>
-      <div className="action-tooltip__row">
-        <span className="action-tooltip__label">ETA</span>
-        <span>{formatEta(secondsNeeded)}</span>
-      </div>
-      {action.producedItem && itemDefinitions[action.producedItem]?.category === 'food' && (
-        <div className="action-tooltip__row">
-          <span className="action-tooltip__label">Heals</span>
-          <span>{itemDefinitions[action.producedItem].healAmount} HP</span>
-        </div>
-      )}
+      <p className="action-tooltip__desc">{action.description}</p>
+      <table className="action-tooltip__table">
+        <tbody>
+          <tr>
+            <td className="action-tooltip__label">Exp cost</td>
+            <td className="action-tooltip__value">{action.expCost}</td>
+          </tr>
+          <tr>
+            <td className="action-tooltip__label">Exp/tick</td>
+            <td className="action-tooltip__value">{expPerTick.toFixed(3)}</td>
+          </tr>
+          <tr>
+            <td className="action-tooltip__label">ETA</td>
+            <td className="action-tooltip__value">{formatEta(secondsNeeded)}</td>
+          </tr>
+          {action.producedItem && itemDefinitions[action.producedItem]?.category === 'food' && (
+            <tr>
+              <td className="action-tooltip__label">Heals</td>
+              <td className="action-tooltip__value">{itemDefinitions[action.producedItem].healAmount} HP</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   )
 }
