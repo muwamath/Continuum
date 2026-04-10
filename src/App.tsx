@@ -1,6 +1,3 @@
-const buildTime = new Date(__BUILD_TIME__).toLocaleTimeString()
-const APP_VERSION = `${__APP_VERSION__} · ${__COMMIT_HASH__} · ${buildTime}`
-
 import { useEffect } from 'react'
 import { useGameState } from './hooks/useGameState'
 import { useGameLoop } from './hooks/useGameLoop'
@@ -13,6 +10,9 @@ import { QueuePanel } from './components/queue/QueuePanel'
 import { HealthBar } from './components/health/HealthBar'
 import { DeathScreen } from './components/death/DeathScreen'
 import { DebugOverlay } from './components/debug/DebugOverlay'
+import { SaveMenu } from './components/save/SaveMenu'
+
+const APP_VERSION = __COMMIT_HASH__
 
 function App() {
   const [state, dispatch] = useGameState()
@@ -48,7 +48,8 @@ function App() {
         footer={
           <>
             <DebugOverlay state={state} dispatch={dispatch} />
-            <span className="version-label">v{APP_VERSION}</span>
+            <SaveMenu state={state} dispatch={dispatch} />
+            <span className="version-label">{APP_VERSION}</span>
           </>
         }
       />

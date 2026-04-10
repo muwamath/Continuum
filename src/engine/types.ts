@@ -1,4 +1,17 @@
-export type SkillId = 'harvest' | 'logging' | 'construction' | 'agility'
+export type SkillId =
+  | 'harvest'
+  | 'logging'
+  | 'mining'
+  | 'fishing'
+  | 'hunting'
+  | 'cooking'
+  | 'smithing'
+  | 'construction'
+  | 'agility'
+  | 'talking'
+
+export type SkillCategory = 'gathering' | 'processing' | 'building' | 'movement-social'
+
 export type ItemId = 'berry' | 'wood'
 
 export interface MasteryState {

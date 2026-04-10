@@ -15,6 +15,12 @@
 
 ## Key Design Decisions
 
+### Skills
+10 skills defined in `src/data/skillDefinitions.ts`, each with a `category` field. Categories: `gathering` (harvest, logging, mining, fishing, hunting), `processing` (cooking, smithing), `building` (construction), `movement-social` (agility, talking). The SkillBar renders them as a flat 5-column CSS grid (2 rows of 5). `skillCategoryOrder` is exported but currently unused — kept for potential future grouping/filtering UI.
+
+### Save Import / Export
+`SaveMenu` (`src/components/save/SaveMenu.tsx`) lives in the footer and exposes "Export Save" (downloads `continuum-save-YYYYMMDD-HHMM.json`) and "Import Save" (file picker). Both reuse the versioned format from `useSaveLoad.ts` (`serializeSave` / `importSaveJson`), so any export can be re-imported even after future migrations. Imports prompt for confirmation and dispatch `SET_DEBUG_STATE` to swap state.
+
 ### Scenes & Acts
 The game is organized into Acts containing Scenes. Each scene defines which actions are available via `actionIds`. Actions can appear in multiple scenes. Completing an action with `leadsToScene` transitions the player to a new scene and clears the queue. Scenes reset to `act1-scene1` on rebirth.
 
@@ -55,10 +61,8 @@ Actions with item costs (e.g., Wooden Cart needs 10 wood) consume resources **on
 - Never commit directly to `main`
 
 ## Versioning
-- Version is `package.json` version + short git commit hash + build timestamp (e.g., `v0.2.0 · a71e3ac · 5:30:00 PM`)
-- Displayed in the footer bar at the bottom of the game
-- Build timestamp updates when Vite restarts, useful for confirming fresh code during development
-- Bump `package.json` version for significant changes
+- Footer label shows the short git commit hash only (e.g., `a71e3ac`), injected via Vite's `__COMMIT_HASH__` define.
+- Bump `package.json` version for significant changes (not displayed in the UI).
 
 ## Layout
 - Fully responsive, fills the entire viewport
